@@ -32,6 +32,14 @@ import { GizmoManager, UtilityLayerRenderer } from 'babylonjs';
 import type { SceneConfig } from './types';
 import type { SelectionState } from './state/selectionState';
 import type { TransformState } from './state/transformState';
+import {
+  createRayManager,
+  showRays,
+  hideRays,
+  updateRays,
+  disposeRayManager,
+  type RayManager,
+} from './rays';
 
 /**
  * Get canvas element by ID with type safety
@@ -52,11 +60,16 @@ let renderConfig: SceneConfig | null = null;
 let selectionState: SelectionState = createInitialSelectionState();
 let transformState: TransformState = createInitialTransformState();
 let gizmoManager: GizmoManager | null = null;
+let rayManager: RayManager | null = null;
 
 /**
  * Cleanup function for disposing resources
  */
 const cleanup = (): void => {
+  if (rayManager) {
+    disposeRayManager(rayManager);
+    rayManager = null;
+  }
   if (gizmoManager) {
     gizmoManager.dispose();
     gizmoManager = null;
@@ -190,6 +203,16 @@ const initialize = (): void => {
           if (renderCube.position) {
             renderCube.position.copyFrom(editorCube.position);
           }
+
+          // Update rays if cube is selected
+          if (rayManager && selectionState.selectedObjectId === 'colorCube') {
+            rayManager = updateRays(
+              rayManager,
+              editorCube.position,
+              editorCube.getWorldMatrix(),
+              { count: 4, maxBounces: 2 }
+            );
+          }
         } else if (attachedMesh === cameraRig.rigNode && cameraRig.rigNode.position) {
           // Handle camera rig position constraints (rig selected directly)  
           const constrained = applyPositionConstraints(cameraRig.rigNode.position, 1, 8);
@@ -225,6 +248,16 @@ const initialize = (): void => {
           if (renderCube.rotation) {
             renderCube.rotation.copyFrom(editorCube.rotation);
           }
+
+          // Update rays if cube is selected
+          if (rayManager && selectionState.selectedObjectId === 'colorCube') {
+            rayManager = updateRays(
+              rayManager,
+              editorCube.position,
+              editorCube.getWorldMatrix(),
+              { count: 4, maxBounces: 2 }
+            );
+          }
         } else if (attachedMesh === cameraRig.rigNode && cameraRig.pivotNode.rotation) {
           // Handle camera rig rotation constraints (Y-axis only)
           // Apply Y rotation to pivot, not rig (matches reference behavior)
@@ -244,6 +277,29 @@ const initialize = (): void => {
     // Apply constraints on drag (delayed to ensure gizmos are ready)
     setTimeout(() => {
       if (gizmoManager.gizmos.positionGizmo) {
+        // Hide rays on drag start, show on drag end (for cube only)
+        gizmoManager.gizmos.positionGizmo.xGizmo.dragBehavior.onDragStartObservable.add(() => {
+          if (gizmoManager.attachedMesh === editorCube && rayManager) {
+            rayManager = hideRays(rayManager);
+          }
+        });
+        gizmoManager.gizmos.positionGizmo.zGizmo.dragBehavior.onDragStartObservable.add(() => {
+          if (gizmoManager.attachedMesh === editorCube && rayManager) {
+            rayManager = hideRays(rayManager);
+          }
+        });
+        
+        gizmoManager.gizmos.positionGizmo.xGizmo.dragBehavior.onDragEndObservable.add(() => {
+          if (gizmoManager.attachedMesh === editorCube && rayManager) {
+            rayManager = showRays(rayManager);
+          }
+        });
+        gizmoManager.gizmos.positionGizmo.zGizmo.dragBehavior.onDragEndObservable.add(() => {
+          if (gizmoManager.attachedMesh === editorCube && rayManager) {
+            rayManager = showRays(rayManager);
+          }
+        });
+        
         gizmoManager.gizmos.positionGizmo.xGizmo.dragBehavior.onDragObservable.add(
           limitToRoom
         );
@@ -273,6 +329,10 @@ const initialize = (): void => {
       }, 50);
     }, 200);
 
+    // Create ray visualization manager
+    rayManager = createRayManager(editorConfig.scene);
+    console.log('✅ Ray manager created');
+
     // Set up selection handling
     const handleSelection = (objectId: string | null): void => {
       if (editorConfig && renderConfig) {
@@ -296,11 +356,32 @@ const initialize = (): void => {
             const target = editorMesh === cameraRig.coneIndicator ? cameraRig.rigNode : editorMesh;
             gizmoManager.attachToMesh(target);
           }
+
+          // Show rays when cube is selected, hide for camera rig
+          if (rayManager) {
+            if (objectId === 'colorCube' && editorCube) {
+              // Show and update rays for cube
+              rayManager = showRays(rayManager);
+              rayManager = updateRays(
+                rayManager,
+                editorCube.position,
+                editorCube.getWorldMatrix(),
+                { count: 4, maxBounces: 2 } // Default configuration
+              );
+            } else {
+              // Hide rays for camera rig or other objects
+              rayManager = hideRays(rayManager);
+            }
+          }
         } else {
           selectionState = clearSelection(selectionState);
           // Detach gizmo
           if (gizmoManager) {
             gizmoManager.attachToMesh(null);
+          }
+          // Hide rays when nothing selected
+          if (rayManager) {
+            rayManager = hideRays(rayManager);
           }
         }
       }
