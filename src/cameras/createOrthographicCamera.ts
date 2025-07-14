@@ -37,6 +37,9 @@ const configureOrthographicBounds = (camera: UniversalCamera): void => {
 const configureCameraOrientation = (camera: UniversalCamera): void => {
   // Set up vector to +Z so that +X points right when looking down -Y
   camera.upVector = new Vector3(0, 0, 1);
+  
+  // Flip X-axis so +X is right, -X is left (matches reference implementation)
+  camera.rotation.z = -Math.PI;
 };
 
 /**

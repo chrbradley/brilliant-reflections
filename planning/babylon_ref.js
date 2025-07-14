@@ -43,7 +43,6 @@ const createScene = function () {
   const WALL_THICKNESS = 0.2;
   const wallMat = new BABYLON.StandardMaterial('wallMat', scene);
   wallMat.diffuseColor.set(0.5, 0.55, 0.5);
-  // wallMat.alpha = 0.8;
   wallMat.backFaceCulling = false;
 
   const mirrorMat = new BABYLON.StandardMaterial('mirrorMat', scene);

@@ -15,8 +15,10 @@ describe('createCameraRig', () => {
 
     expect(rig).toBeDefined();
     expect(rig.rigNode).toBeDefined();
+    expect(rig.pivotNode).toBeDefined();
     expect(rig.coneIndicator).toBeDefined();
-    expect(rig.rigNode.name).toBe('cameraRig');
+    expect(rig.rigNode.name).toBe('camRig');
+    expect(rig.pivotNode.name).toBe('camPivot');
     
     sceneConfig.dispose();
   });
@@ -26,10 +28,10 @@ describe('createCameraRig', () => {
     const sceneConfig = createEditorScene(canvas);
     const rig = createCameraRig(sceneConfig.scene);
 
-    // Default position should be at (0, 0, -5)
+    // Default position should be at (0, 0, -3) to match reference
     expect(rig.rigNode.position.x).toBe(0);
     expect(rig.rigNode.position.y).toBe(0);
-    expect(rig.rigNode.position.z).toBe(-5);
+    expect(rig.rigNode.position.z).toBe(-3);
     
     sceneConfig.dispose();
   });
@@ -50,18 +52,20 @@ describe('createCameraRig', () => {
     const sceneConfig = createEditorScene(canvas);
     const rig = createCameraRig(sceneConfig.scene);
 
-    expect(rig.coneIndicator.name).toBe('cameraIndicator');
+    expect(rig.coneIndicator.name).toBe('camera');
     // Cone should be created with specific dimensions
     
     sceneConfig.dispose();
   });
 
-  it('should parent cone to rig node', () => {
+  it('should create nested hierarchy: cone -> pivot -> rig', () => {
     const canvas = document.createElement('canvas');
     const sceneConfig = createEditorScene(canvas);
     const rig = createCameraRig(sceneConfig.scene);
 
-    expect(rig.coneIndicator.parent).toBe(rig.rigNode);
+    // Check the nested parent-child relationships
+    expect(rig.coneIndicator.parent).toBe(rig.pivotNode);
+    expect(rig.pivotNode.parent).toBe(rig.rigNode);
     
     sceneConfig.dispose();
   });
@@ -79,6 +83,21 @@ describe('createCameraRig', () => {
     sceneConfig.dispose();
   });
 
+  it('should set initial rotations to match reference', () => {
+    const canvas = document.createElement('canvas');
+    const sceneConfig = createEditorScene(canvas);
+    const rig = createCameraRig(sceneConfig.scene);
+
+    // Rig should have orientation rotations (matches reference)
+    expect(rig.rigNode.rotation.x).toBeCloseTo(Math.PI / 2);
+    expect(rig.rigNode.rotation.z).toBeCloseTo(Math.PI);
+    
+    // Pivot should have initial Y rotation (matches reference)
+    expect(rig.pivotNode.rotation.y).toBeCloseTo(Math.PI / 4);
+    
+    sceneConfig.dispose();
+  });
+
   it('should return immutable rig configuration', () => {
     const canvas = document.createElement('canvas');
     const sceneConfig = createEditorScene(canvas);
@@ -86,6 +105,7 @@ describe('createCameraRig', () => {
 
     expect(typeof rig).toBe('object');
     expect(rig).toHaveProperty('rigNode');
+    expect(rig).toHaveProperty('pivotNode');
     expect(rig).toHaveProperty('coneIndicator');
     
     sceneConfig.dispose();

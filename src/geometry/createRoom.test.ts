@@ -35,6 +35,16 @@ describe('createRoom', () => {
       sceneConfig.dispose();
     });
 
+    it('should make floor non-pickable', () => {
+      const canvas = document.createElement('canvas');
+      const sceneConfig = createEditorScene(canvas);
+      const floor = createFloor(sceneConfig.scene);
+
+      expect(floor.isPickable).toBe(false);
+      
+      sceneConfig.dispose();
+    });
+
     it('should return immutable mesh configuration', () => {
       const canvas = document.createElement('canvas');
       const sceneConfig = createEditorScene(canvas);
@@ -59,6 +69,16 @@ describe('createRoom', () => {
       expect(ceiling).toBeDefined();
       expect(ceiling.name).toBe(WALL_NAMES.CEILING);
       expect(ceiling.position.y).toBeGreaterThan(0); // Should be above floor
+      
+      sceneConfig.dispose();
+    });
+
+    it('should make ceiling non-pickable', () => {
+      const canvas = document.createElement('canvas');
+      const sceneConfig = createEditorScene(canvas);
+      const ceiling = createCeiling(sceneConfig.scene);
+
+      expect(ceiling.isPickable).toBe(false);
       
       sceneConfig.dispose();
     });
@@ -169,6 +189,24 @@ describe('createRoom', () => {
       expect(room.walls.south.material).toBeDefined();
       expect(room.walls.east.material).toBeDefined();
       expect(room.walls.west.material).toBeDefined();
+      
+      sceneConfig.dispose();
+    });
+
+    it('should make all room geometry non-pickable', () => {
+      const canvas = document.createElement('canvas');
+      const sceneConfig = createEditorScene(canvas);
+      const room = createRoom(sceneConfig.scene);
+
+      // Floor and ceiling should be non-pickable
+      expect(room.floor.isPickable).toBe(false);
+      expect(room.ceiling.isPickable).toBe(false);
+      
+      // All walls should be non-pickable
+      expect(room.walls.north.isPickable).toBe(false);
+      expect(room.walls.south.isPickable).toBe(false);
+      expect(room.walls.east.isPickable).toBe(false);
+      expect(room.walls.west.isPickable).toBe(false);
       
       sceneConfig.dispose();
     });

@@ -54,6 +54,7 @@ export const createFloor = (scene: Scene): Mesh => {
   
   floor.position.y = 0;
   floor.material = createMatteMaterial('floorMaterial', scene, { r: 0.4, g: 0.4, b: 0.4 });
+  floor.isPickable = false; // Room geometry should not be selectable
   
   return floor;
 };
@@ -70,6 +71,7 @@ export const createCeiling = (scene: Scene): Mesh => {
   
   ceiling.position.y = WALL_HEIGHT;
   ceiling.material = createMatteMaterial('ceilingMaterial', scene, { r: 0.8, g: 0.8, b: 0.8 });
+  ceiling.isPickable = false; // Room geometry should not be selectable
   
   // Flip ceiling to face downward
   ceiling.rotation.x = Math.PI;
@@ -108,6 +110,7 @@ export const createWall = (
   
   // Apply material
   wall.material = createMatteMaterial(`${name}Material`, scene, { r: 0.65, g: 0.65, b: 0.65 });
+  wall.isPickable = false; // Room geometry should not be selectable
   
   return wall;
 };
