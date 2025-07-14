@@ -8,6 +8,7 @@ import { createOrthographicCamera } from './cameras/createOrthographicCamera';
 import { createPerspectiveCamera } from './cameras/createPerspectiveCamera';
 import { attachCamera } from './cameras/attachCamera';
 import { createRoom } from './geometry/createRoom';
+import { createCube } from './geometry/createCube';
 import { createAmbientLight } from './lighting/createLighting';
 import type { SceneConfig } from './types';
 
@@ -69,6 +70,10 @@ const initialize = (): void => {
     // Create room geometry in both scenes
     createRoom(editorConfig.scene);
     createRoom(renderConfig.scene);
+
+    // Create the interactive cube in both scenes
+    createCube(editorConfig.scene);
+    createCube(renderConfig.scene);
 
     // Set up render loops
     editorConfig.engine.runRenderLoop(() => {
