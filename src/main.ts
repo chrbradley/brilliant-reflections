@@ -16,11 +16,11 @@ import { createInitialSelectionState, selectObject, clearSelection, isSelected }
 import { createPickHandler } from './editor/handlePicking';
 import { applyHighlight, removeHighlight } from './effects/highlightEffect';
 import { createInitialTransformState, updateObjectPosition } from './state/transformState';
-import { createPositionGizmo } from './gizmos/createPositionGizmo';
+import { applyPositionConstraints } from './transforms/positionTransforms';
+import { GizmoManager } from 'babylonjs';
 import type { SceneConfig } from './types';
 import type { SelectionState } from './state/selectionState';
 import type { TransformState } from './state/transformState';
-import type { PositionGizmoConfig } from './gizmos/createPositionGizmo';
 
 /**
  * Get canvas element by ID with type safety
@@ -40,15 +40,15 @@ let editorConfig: SceneConfig | null = null;
 let renderConfig: SceneConfig | null = null;
 let selectionState: SelectionState = createInitialSelectionState();
 let transformState: TransformState = createInitialTransformState();
-let currentGizmo: PositionGizmoConfig | null = null;
+let gizmoManager: GizmoManager | null = null;
 
 /**
  * Cleanup function for disposing resources
  */
 const cleanup = (): void => {
-  if (currentGizmo) {
-    currentGizmo.gizmoManager.attachToMesh(null);
-    currentGizmo = null;
+  if (gizmoManager) {
+    gizmoManager.dispose();
+    gizmoManager = null;
   }
   if (editorConfig) {
     editorConfig.dispose();
@@ -95,18 +95,56 @@ const initialize = (): void => {
     // Create camera rig in editor scene only (shows render camera position)
     const cameraRig = createCameraRig(editorConfig.scene);
 
+    // Create and configure gizmo manager following reference pattern
+    gizmoManager = new GizmoManager(editorConfig.scene);
+    gizmoManager.attachableMeshes = [editorCube]; // Only cube is draggable
+    gizmoManager.clearGizmoOnEmptyPointerEvent = true; // Auto-clear on empty click
+    
+    // Bootstrap once so gizmo sub-objects exist
+    gizmoManager.attachToMesh(editorCube);
+    
+    // Enable and configure position gizmo
+    gizmoManager.positionGizmoEnabled = true;
+    if (gizmoManager.gizmos.positionGizmo) {
+      const posGizmo = gizmoManager.gizmos.positionGizmo;
+      posGizmo.snapDistance = 1; // 1-unit grid snapping
+      posGizmo.yGizmo.isEnabled = false; // Lock Y movement
+      posGizmo.updateGizmoRotationToMatchAttachedMesh = false; // World-aligned
+      
+      // Add constraint callbacks to X and Z gizmos
+      const limitToRoom = (): void => {
+        if (gizmoManager?.attachedMesh && editorCube.position) {
+          const constrained = applyPositionConstraints(editorCube.position, 1, 8);
+          editorCube.position.copyFrom(constrained);
+          
+          // Update transform state
+          transformState = updateObjectPosition(
+            transformState,
+            'colorCube',
+            editorCube.position
+          );
+          
+          // Sync to render scene
+          if (renderCube.position) {
+            renderCube.position.copyFrom(editorCube.position);
+          }
+        }
+      };
+      
+      // Apply constraints on drag
+      posGizmo.xGizmo.dragBehavior.onDragObservable.add(limitToRoom);
+      posGizmo.zGizmo.dragBehavior.onDragObservable.add(limitToRoom);
+    }
+    
+    // Start with nothing selected
+    gizmoManager.attachToMesh(null);
+
     // Set up selection handling
     const handleSelection = (objectId: string | null): void => {
       // Remove highlight from previously selected object
       if (selectionState.selectedObjectId) {
         removeHighlight(editorConfig.scene, selectionState.selectedObjectId);
         removeHighlight(renderConfig.scene, selectionState.selectedObjectId);
-      }
-
-      // Dispose current gizmo
-      if (currentGizmo) {
-        currentGizmo.gizmoManager.attachToMesh(null);
-        currentGizmo = null;
       }
 
       // Update selection state
@@ -116,33 +154,17 @@ const initialize = (): void => {
         applyHighlight(editorConfig.scene, objectId);
         applyHighlight(renderConfig.scene, objectId);
         
-        // Create position gizmo for selected object in editor
+        // Attach gizmo to selected object
         const editorMesh = editorConfig.scene.getMeshByName(objectId);
-        if (editorMesh) {
-          currentGizmo = createPositionGizmo(editorConfig.scene, editorMesh);
-          
-          // Store original callback and extend it
-          const originalCallback = currentGizmo.constraints.updateCallback;
-          currentGizmo.constraints.updateCallback = (): void => {
-            // Apply constraints first
-            originalCallback();
-            
-            // Update transform state
-            transformState = updateObjectPosition(
-              transformState,
-              objectId,
-              editorMesh.position
-            );
-            
-            // Sync position to render scene
-            const renderMesh = renderConfig.scene.getMeshByName(objectId);
-            if (renderMesh) {
-              renderMesh.position.copyFrom(editorMesh.position);
-            }
-          };
+        if (editorMesh && gizmoManager) {
+          gizmoManager.attachToMesh(editorMesh);
         }
       } else {
         selectionState = clearSelection(selectionState);
+        // Detach gizmo
+        if (gizmoManager) {
+          gizmoManager.attachToMesh(null);
+        }
       }
     };
 
