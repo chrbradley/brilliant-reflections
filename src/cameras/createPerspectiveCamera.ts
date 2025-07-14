@@ -1,0 +1,63 @@
+// ABOUTME: Pure function to create a perspective camera for the render view
+// ABOUTME: Returns configured camera with appropriate FOV and position
+
+import { UniversalCamera, Vector3, Scene } from 'babylonjs';
+
+/**
+ * Creates camera position for perspective view
+ */
+const createCameraPosition = (): Vector3 => {
+  return new Vector3(0, 5, -10);
+};
+
+/**
+ * Creates camera target (look-at point)
+ */
+const createCameraTarget = (): Vector3 => {
+  return new Vector3(0, 0, 0);
+};
+
+/**
+ * Converts degrees to radians
+ */
+const degreesToRadians = (degrees: number): number => {
+  return degrees * (Math.PI / 180);
+};
+
+/**
+ * Configures camera field of view and clipping planes
+ */
+const configurePerspectiveSettings = (camera: UniversalCamera): void => {
+  // Set FOV to approximately 60 degrees
+  camera.fov = degreesToRadians(60);
+  
+  // Set reasonable clipping planes for our room scene
+  camera.minZ = 0.1;
+  camera.maxZ = 100;
+};
+
+/**
+ * Creates and configures a perspective camera for the render view
+ * 
+ * @param name - The name for the camera
+ * @param scene - The scene to add the camera to
+ * @returns Configured perspective camera
+ */
+export const createPerspectiveCamera = (
+  name: string,
+  scene: Scene
+): UniversalCamera => {
+  const position = createCameraPosition();
+  const target = createCameraTarget();
+  
+  // Create camera
+  const camera = new UniversalCamera(name, position, scene);
+  
+  // Set target
+  camera.setTarget(target);
+  
+  // Configure perspective settings
+  configurePerspectiveSettings(camera);
+  
+  return camera;
+};

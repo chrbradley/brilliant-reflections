@@ -4,6 +4,9 @@
 import './style.css';
 import { createEditorScene } from './editor/createEditorScene';
 import { createRenderScene } from './render/createRenderScene';
+import { createOrthographicCamera } from './cameras/createOrthographicCamera';
+import { createPerspectiveCamera } from './cameras/createPerspectiveCamera';
+import { attachCamera } from './cameras/attachCamera';
 import type { SceneConfig } from './types';
 
 /**
@@ -50,6 +53,13 @@ const initialize = (): void => {
     editorConfig = createEditorScene(editorCanvas);
     renderConfig = createRenderScene(renderCanvas);
 
+    // Create and attach cameras
+    const editorCamera = createOrthographicCamera('editorCamera', editorConfig.scene);
+    attachCamera(editorCamera, editorConfig.scene, editorCanvas);
+
+    const renderCamera = createPerspectiveCamera('renderCamera', renderConfig.scene);
+    attachCamera(renderCamera, renderConfig.scene, renderCanvas);
+
     // Set up render loops
     editorConfig.engine.runRenderLoop(() => {
       // Only render if scene has active cameras
@@ -78,7 +88,7 @@ const initialize = (): void => {
 
     // Log successful initialization
     console.log('Application initialized successfully');
-    console.log('Scenes created. Waiting for cameras (Step 3)...');
+    console.log('Cameras attached. Ready for rendering.');
   } catch (error) {
     console.error('Failed to initialize application:', error);
     cleanup();
