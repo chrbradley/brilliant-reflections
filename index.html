@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mirror Room Reflection Interactive</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <header class="app-header">
+        <h1>Mirror Room Reflections</h1>
+      </header>
+      
+      <div class="controls-section">
+        <div class="control-group">
+          <label for="raysSlider">Rays: <span id="raysValue">4</span></label>
+          <input type="range" id="raysSlider" min="0" max="8" value="4" />
+        </div>
+        <div class="control-group">
+          <label for="bouncesSlider">Bounces: <span id="bouncesValue">2</span></label>
+          <input type="range" id="bouncesSlider" min="1" max="5" value="2" />
+        </div>
+        <div class="control-group">
+          <label for="qualitySelect">Quality:</label>
+          <select id="qualitySelect">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+        <button id="resetButton">Reset</button>
+      </div>
+
+      <div class="canvas-container">
+        <div class="canvas-wrapper">
+          <canvas id="editorCanvas"></canvas>
+          <div class="canvas-label">Editor View</div>
+        </div>
+        <div class="canvas-wrapper">
+          <canvas id="renderCanvas"></canvas>
+          <div class="canvas-label">Render View</div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
