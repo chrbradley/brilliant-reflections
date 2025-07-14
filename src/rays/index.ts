@@ -6,3 +6,6 @@ export * from './generateRays';
 export * from './createWallPlanes';
 export * from './calculateIntersection';
 export * from './traceRay';
+export * from './createRaySegments';
+export * from './createRayMeshes';
+export * from './rayManager';
