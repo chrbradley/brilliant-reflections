@@ -121,9 +121,10 @@ const initialize = (): void => {
         if (editorMesh) {
           currentGizmo = createPositionGizmo(editorConfig.scene, editorMesh);
           
-          // Add observer for position changes
+          // Store original callback and extend it
           const originalCallback = currentGizmo.constraints.updateCallback;
-          currentGizmo.gizmo.xGizmo.dragBehavior?.onPositionChangedObservable.add(() => {
+          currentGizmo.constraints.updateCallback = (): void => {
+            // Apply constraints first
             originalCallback();
             
             // Update transform state
@@ -138,24 +139,7 @@ const initialize = (): void => {
             if (renderMesh) {
               renderMesh.position.copyFrom(editorMesh.position);
             }
-          });
-          
-          currentGizmo.gizmo.zGizmo.dragBehavior?.onPositionChangedObservable.add(() => {
-            originalCallback();
-            
-            // Update transform state
-            transformState = updateObjectPosition(
-              transformState,
-              objectId,
-              editorMesh.position
-            );
-            
-            // Sync position to render scene
-            const renderMesh = renderConfig.scene.getMeshByName(objectId);
-            if (renderMesh) {
-              renderMesh.position.copyFrom(editorMesh.position);
-            }
-          });
+          };
         }
       } else {
         selectionState = clearSelection(selectionState);

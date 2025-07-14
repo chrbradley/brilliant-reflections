@@ -43,13 +43,17 @@ export const createPositionGizmo = (
     scene.gizmoManager = new GizmoManager(scene);
   }
   
-  // Create position gizmo
+  // Create position gizmo through the manager
   const gizmo = new PositionGizmo();
+  
+  // Make sure the gizmo is properly initialized
   gizmo.attachedMesh = mesh;
   gizmo.updateScale = false; // Don't scale with distance
   
-  // Disable Y axis movement
-  gizmo.yGizmo.isEnabled = false;
+  // Wait for gizmo to be ready before disabling Y axis
+  if (gizmo.yGizmo) {
+    gizmo.yGizmo.isEnabled = false;
+  }
   
   // Create constraint callback
   const updateCallback = (): void => {
@@ -64,10 +68,10 @@ export const createPositionGizmo = (
   };
   
   // Apply constraints on drag (check for drag behavior in test environment)
-  if (gizmo.xGizmo.dragBehavior?.onPositionChangedObservable) {
+  if (gizmo.xGizmo?.dragBehavior?.onPositionChangedObservable) {
     gizmo.xGizmo.dragBehavior.onPositionChangedObservable.add(updateCallback);
   }
-  if (gizmo.zGizmo.dragBehavior?.onPositionChangedObservable) {
+  if (gizmo.zGizmo?.dragBehavior?.onPositionChangedObservable) {
     gizmo.zGizmo.dragBehavior.onPositionChangedObservable.add(updateCallback);
   }
   
