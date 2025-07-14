@@ -8,6 +8,7 @@ import { createOrthographicCamera } from './cameras/createOrthographicCamera';
 import { createPerspectiveCamera } from './cameras/createPerspectiveCamera';
 import { attachCamera } from './cameras/attachCamera';
 import { createRoom } from './geometry/createRoom';
+import { createAmbientLight } from './lighting/createLighting';
 import type { SceneConfig } from './types';
 
 /**
@@ -60,6 +61,10 @@ const initialize = (): void => {
 
     const renderCamera = createPerspectiveCamera('renderCamera', renderConfig.scene);
     attachCamera(renderCamera, renderConfig.scene, renderCanvas);
+
+    // Create lighting for both scenes
+    createAmbientLight('editorLight', editorConfig.scene);
+    createAmbientLight('renderLight', renderConfig.scene);
 
     // Create room geometry in both scenes
     createRoom(editorConfig.scene);
