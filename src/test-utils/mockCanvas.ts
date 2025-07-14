@@ -33,7 +33,7 @@ export const createMockWebGLContext = (): any => ({
   viewport: vi.fn(),
   drawArrays: vi.fn(),
   drawElements: vi.fn(),
-  createBuffer: vi.fn(),
+  createBuffer: vi.fn(() => ({})),
   bindBuffer: vi.fn(),
   bufferData: vi.fn(),
   createTexture: vi.fn(),
@@ -65,6 +65,8 @@ export const createMockWebGLContext = (): any => ({
   enableVertexAttribArray: vi.fn(),
   disableVertexAttribArray: vi.fn(),
   getAttribLocation: vi.fn(() => 0),
+  getError: vi.fn(() => 0), // NO_ERROR
+  isBuffer: vi.fn(() => true),
 });
 
 /**
