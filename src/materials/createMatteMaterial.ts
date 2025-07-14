@@ -16,9 +16,9 @@ export interface MaterialColor {
  * Default matte gray color
  */
 const DEFAULT_MATTE_COLOR: MaterialColor = {
-  r: 0.5,
-  g: 0.5,
-  b: 0.5,
+  r: 0.6,
+  g: 0.6,
+  b: 0.6,
 };
 
 /**

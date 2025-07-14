@@ -53,7 +53,7 @@ export const createFloor = (scene: Scene): Mesh => {
   );
   
   floor.position.y = 0;
-  floor.material = createMatteMaterial('floorMaterial', scene, { r: 0.3, g: 0.3, b: 0.3 });
+  floor.material = createMatteMaterial('floorMaterial', scene, { r: 0.4, g: 0.4, b: 0.4 });
   
   return floor;
 };
@@ -69,7 +69,7 @@ export const createCeiling = (scene: Scene): Mesh => {
   );
   
   ceiling.position.y = WALL_HEIGHT;
-  ceiling.material = createMatteMaterial('ceilingMaterial', scene, { r: 0.7, g: 0.7, b: 0.7 });
+  ceiling.material = createMatteMaterial('ceilingMaterial', scene, { r: 0.8, g: 0.8, b: 0.8 });
   
   // Flip ceiling to face downward
   ceiling.rotation.x = Math.PI;
@@ -107,7 +107,7 @@ export const createWall = (
   wall.rotation.z = rotation.z;
   
   // Apply material
-  wall.material = createMatteMaterial(`${name}Material`, scene, { r: 0.6, g: 0.6, b: 0.6 });
+  wall.material = createMatteMaterial(`${name}Material`, scene, { r: 0.65, g: 0.65, b: 0.65 });
   
   return wall;
 };
