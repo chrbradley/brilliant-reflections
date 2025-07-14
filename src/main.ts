@@ -325,11 +325,23 @@ const initialize = (): void => {
         gizmoManager.gizmos.positionGizmo.xGizmo.dragBehavior.onDragEndObservable.add(() => {
           if (gizmoManager.attachedMesh === editorCube && rayManager) {
             rayManager = showRays(rayManager);
+            rayManager = updateRays(
+              rayManager,
+              editorCube.position,
+              editorCube.getWorldMatrix(),
+              { count: 4, maxBounces: 2 }
+            );
           }
         });
         gizmoManager.gizmos.positionGizmo.zGizmo.dragBehavior.onDragEndObservable.add(() => {
           if (gizmoManager.attachedMesh === editorCube && rayManager) {
             rayManager = showRays(rayManager);
+            rayManager = updateRays(
+              rayManager,
+              editorCube.position,
+              editorCube.getWorldMatrix(),
+              { count: 4, maxBounces: 2 }
+            );
           }
         });
         
@@ -346,20 +358,27 @@ const initialize = (): void => {
         gizmoManager.gizmos.rotationGizmo.yGizmo.dragBehavior.onDragObservable.add(
           constrainRotation
         );
+        
+        // Add ray update on rotation end (matches reference)
+        gizmoManager.gizmos.rotationGizmo.yGizmo.dragBehavior.onDragEndObservable.add(() => {
+          if (gizmoManager.attachedMesh === editorCube && rayManager) {
+            rayManager = updateRays(
+              rayManager,
+              editorCube.position,
+              editorCube.getWorldMatrix(),
+              { count: 4, maxBounces: 2 }
+            );
+          }
+        });
+        
         console.log('✅ Rotation drag constraints attached');
       }
     }, 150);
 
-    // Following reference pattern: start with nothing selected, then select cube
+    // Following reference pattern: start with nothing selected
     setTimeout(() => {
-      console.log('🔄 Detaching from cube to reset...');
+      console.log('🔄 Starting with nothing selected...');
       gizmoManager.attachToMesh(null);
-      
-      // Then immediately reattach to test
-      setTimeout(() => {
-        console.log('🔄 Reattaching to cube for gizmo visibility test...');
-        gizmoManager.attachToMesh(editorCube);
-      }, 50);
     }, 200);
 
     // Create ray visualization manager
@@ -429,6 +448,25 @@ const initialize = (): void => {
 
     // Register pick handler
     editorConfig.scene.onPointerObservable.add(pickHandler);
+    
+    // Also handle gizmo attachment changes (matches reference pattern)
+    gizmoManager.onAttachedToMeshObservable.add((mesh) => {
+      if (mesh === editorCube) {
+        if (rayManager) {
+          rayManager = showRays(rayManager);
+          rayManager = updateRays(
+            rayManager,
+            editorCube.position,
+            editorCube.getWorldMatrix(),
+            { count: 4, maxBounces: 2 }
+          );
+        }
+      } else if (mesh === null || mesh === cameraRig.rigNode) {
+        if (rayManager) {
+          rayManager = hideRays(rayManager);
+        }
+      }
+    });
 
     // Sync render camera with rig position
     const syncRenderCamera = (): void => {
