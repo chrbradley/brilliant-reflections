@@ -12,7 +12,11 @@ import { createCube } from './geometry/createCube';
 import { createCameraRig } from './editor/createCameraRig';
 import { syncCameraWithRig } from './render/syncCameraWithRig';
 import { createAmbientLight } from './lighting/createLighting';
+import { createInitialSelectionState, selectObject, clearSelection, isSelected } from './state/selectionState';
+import { createPickHandler } from './editor/handlePicking';
+import { applyHighlight, removeHighlight } from './effects/highlightEffect';
 import type { SceneConfig } from './types';
+import type { SelectionState } from './state/selectionState';
 
 /**
  * Get canvas element by ID with type safety
@@ -30,6 +34,7 @@ const getCanvas = (id: string): HTMLCanvasElement => {
  */
 let editorConfig: SceneConfig | null = null;
 let renderConfig: SceneConfig | null = null;
+let selectionState: SelectionState = createInitialSelectionState();
 
 /**
  * Cleanup function for disposing resources
@@ -74,11 +79,40 @@ const initialize = (): void => {
     createRoom(renderConfig.scene);
 
     // Create the interactive cube in both scenes
-    createCube(editorConfig.scene);
-    createCube(renderConfig.scene);
+    const editorCube = createCube(editorConfig.scene);
+    const renderCube = createCube(renderConfig.scene);
 
     // Create camera rig in editor scene only (shows render camera position)
     const cameraRig = createCameraRig(editorConfig.scene);
+
+    // Set up selection handling
+    const handleSelection = (objectId: string | null): void => {
+      // Remove highlight from previously selected object
+      if (selectionState.selectedObjectId) {
+        removeHighlight(editorConfig.scene, selectionState.selectedObjectId);
+        removeHighlight(renderConfig.scene, selectionState.selectedObjectId);
+      }
+
+      // Update selection state
+      if (objectId) {
+        selectionState = selectObject(selectionState, objectId);
+        // Apply highlight to newly selected object
+        applyHighlight(editorConfig.scene, objectId);
+        applyHighlight(renderConfig.scene, objectId);
+      } else {
+        selectionState = clearSelection(selectionState);
+      }
+    };
+
+    // Create pick handler for editor scene
+    const pickHandler = createPickHandler(
+      editorConfig.scene,
+      handleSelection,
+      true // Clear selection when clicking empty space
+    );
+
+    // Register pick handler
+    editorConfig.scene.onPointerObservable.add(pickHandler);
 
     // Sync render camera with rig position
     const syncRenderCamera = (): void => {
