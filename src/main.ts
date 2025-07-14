@@ -47,7 +47,7 @@ let currentGizmo: PositionGizmoConfig | null = null;
  */
 const cleanup = (): void => {
   if (currentGizmo) {
-    currentGizmo.gizmo.dispose();
+    currentGizmo.gizmoManager.attachToMesh(null);
     currentGizmo = null;
   }
   if (editorConfig) {
@@ -105,7 +105,7 @@ const initialize = (): void => {
 
       // Dispose current gizmo
       if (currentGizmo) {
-        currentGizmo.gizmo.dispose();
+        currentGizmo.gizmoManager.attachToMesh(null);
         currentGizmo = null;
       }
 

@@ -17,7 +17,7 @@ describe('createPositionGizmo', () => {
     const gizmoConfig = createPositionGizmo(sceneConfig.scene, mesh);
     
     expect(gizmoConfig).toBeDefined();
-    expect(gizmoConfig.gizmo).toBeDefined();
+    expect(gizmoConfig.gizmoManager).toBeDefined();
     expect(gizmoConfig.attachedMesh).toBe(mesh);
     expect(gizmoConfig.constraints).toBeDefined();
     
@@ -45,7 +45,7 @@ describe('createPositionGizmo', () => {
     
     const gizmoConfig = createPositionGizmo(sceneConfig.scene, mesh);
     
-    expect(gizmoConfig.gizmo.attachedMesh).toBe(mesh);
+    expect(gizmoConfig.gizmoManager.attachedMesh).toBe(mesh);
     
     sceneConfig.dispose();
   });
@@ -111,21 +111,21 @@ describe('createPositionGizmo', () => {
     const gizmoConfig = createPositionGizmo(sceneConfig.scene, mesh);
     
     expect(typeof gizmoConfig).toBe('object');
-    expect(gizmoConfig).toHaveProperty('gizmo');
+    expect(gizmoConfig).toHaveProperty('gizmoManager');
     expect(gizmoConfig).toHaveProperty('attachedMesh');
     expect(gizmoConfig).toHaveProperty('constraints');
     
     sceneConfig.dispose();
   });
 
-  it('should set gizmo update scale to false', () => {
+  it('should enable position gizmo on manager', () => {
     const canvas = document.createElement('canvas');
     const sceneConfig = createEditorScene(canvas);
     const mesh = new Mesh('testMesh', sceneConfig.scene);
     
     const gizmoConfig = createPositionGizmo(sceneConfig.scene, mesh);
     
-    expect(gizmoConfig.gizmo.updateScale).toBe(false);
+    expect(gizmoConfig.gizmoManager.positionGizmoEnabled).toBe(true);
     
     sceneConfig.dispose();
   });
