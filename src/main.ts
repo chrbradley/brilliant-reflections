@@ -9,6 +9,8 @@ import { createPerspectiveCamera } from './cameras/createPerspectiveCamera';
 import { attachCamera } from './cameras/attachCamera';
 import { createRoom } from './geometry/createRoom';
 import { createCube } from './geometry/createCube';
+import { createCameraRig } from './editor/createCameraRig';
+import { syncCameraWithRig } from './render/syncCameraWithRig';
 import { createAmbientLight } from './lighting/createLighting';
 import type { SceneConfig } from './types';
 
@@ -74,6 +76,22 @@ const initialize = (): void => {
     // Create the interactive cube in both scenes
     createCube(editorConfig.scene);
     createCube(renderConfig.scene);
+
+    // Create camera rig in editor scene only (shows render camera position)
+    const cameraRig = createCameraRig(editorConfig.scene);
+
+    // Sync render camera with rig position
+    const syncRenderCamera = (): void => {
+      const transform = syncCameraWithRig(
+        cameraRig.rigNode.position,
+        cameraRig.rigNode.rotation
+      );
+      renderCamera.position.copyFrom(transform.position);
+      renderCamera.rotation.copyFrom(transform.rotation);
+    };
+
+    // Initial sync
+    syncRenderCamera();
 
     // Set up render loops
     editorConfig.engine.runRenderLoop(() => {
