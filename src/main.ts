@@ -18,6 +18,8 @@ import {
   clearSelection,
   isSelected,
 } from './state/selectionState';
+import { createMirrorConfig } from './mirrors/createMirrorTexture';
+import { applyMirrorToWall, getMirrorWalls } from './mirrors/applyMirrors';
 import { createPickHandler } from './editor/handlePicking';
 import { applyHighlight, removeHighlight } from './effects/highlightEffect';
 import {
@@ -28,7 +30,8 @@ import {
 import { applyPositionConstraints } from './transforms/positionTransforms';
 import { applyRotationConstraints } from './transforms/rotationTransforms';
 import { createRotationGizmo } from './gizmos/createRotationGizmo';
-import { GizmoManager, UtilityLayerRenderer } from 'babylonjs';
+import { GizmoManager, UtilityLayerRenderer, Vector3, Mesh } from 'babylonjs';
+import * as BABYLON from 'babylonjs';
 import type { SceneConfig } from './types';
 import type { SelectionState } from './state/selectionState';
 import type { TransformState } from './state/transformState';
@@ -117,6 +120,36 @@ const initialize = (): void => {
     // Create room geometry in both scenes
     createRoom(editorConfig.scene);
     createRoom(renderConfig.scene);
+    
+    // Apply mirrors to render scene walls
+    const mirrorWalls = getMirrorWalls();
+    for (const wallName of mirrorWalls) {
+      const wall = renderConfig.scene.getMeshByName(wallName);
+      if (wall && wall instanceof BABYLON.Mesh) {
+        let position: Vector3;
+        let normal: Vector3;
+        
+        switch (wallName) {
+          case 'northWall':
+            position = new Vector3(0, 0, 10);
+            normal = new Vector3(0, 0, -1);
+            break;
+          case 'eastWall':
+            position = new Vector3(10, 0, 0);
+            normal = new Vector3(-1, 0, 0);
+            break;
+          case 'westWall':
+            position = new Vector3(-10, 0, 0);
+            normal = new Vector3(1, 0, 0);
+            break;
+          default:
+            continue;
+        }
+        
+        const mirrorConfig = createMirrorConfig(wallName, position, normal, renderConfig.scene);
+        applyMirrorToWall(wall, mirrorConfig);
+      }
+    }
 
     // Create the interactive cube in both scenes
     const editorCube = createCube(editorConfig.scene);
