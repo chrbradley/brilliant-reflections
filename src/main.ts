@@ -103,41 +103,38 @@ const initialize = (): void => {
     // Bootstrap once so gizmo sub-objects exist
     gizmoManager.attachToMesh(editorCube);
     
-    // Enable and configure position gizmo
-    gizmoManager.positionGizmoEnabled = true;
-    if (gizmoManager.gizmos.positionGizmo) {
-      const posGizmo = gizmoManager.gizmos.positionGizmo;
-      posGizmo.snapDistance = 1; // 1-unit grid snapping
-      posGizmo.yGizmo.isEnabled = false; // Lock Y movement
-      posGizmo.updateGizmoRotationToMatchAttachedMesh = false; // World-aligned
-      
-      // Add constraint callbacks to X and Z gizmos
-      const limitToRoom = (): void => {
-        if (gizmoManager?.attachedMesh && editorCube.position) {
-          const constrained = applyPositionConstraints(editorCube.position, 1, 8);
-          editorCube.position.copyFrom(constrained);
-          
-          // Update transform state
-          transformState = updateObjectPosition(
-            transformState,
-            'colorCube',
-            editorCube.position
-          );
-          
-          // Sync to render scene
-          if (renderCube.position) {
-            renderCube.position.copyFrom(editorCube.position);
-          }
-        }
-      };
-      
-      // Apply constraints on drag
-      posGizmo.xGizmo.dragBehavior.onDragObservable.add(limitToRoom);
-      posGizmo.zGizmo.dragBehavior.onDragObservable.add(limitToRoom);
-    }
+    // Enable and configure position gizmo WHILE ATTACHED
+    gizmoManager.positionGizmoEnabled = true; // arrows visible
+    gizmoManager.gizmos.positionGizmo.snapDistance = 1; // 1-unit grid
+    gizmoManager.gizmos.positionGizmo.yGizmo.isEnabled = false; // lock Y-move
+    gizmoManager.gizmos.positionGizmo.updateGizmoRotationToMatchAttachedMesh = false; // world-aligned
     
-    // Start with nothing selected
-    gizmoManager.attachToMesh(null);
+    // Add constraint callbacks to X and Z gizmos
+    const limitToRoom = (): void => {
+      if (gizmoManager?.attachedMesh && editorCube.position) {
+        const constrained = applyPositionConstraints(editorCube.position, 1, 8);
+        editorCube.position.copyFrom(constrained);
+        
+        // Update transform state
+        transformState = updateObjectPosition(
+          transformState,
+          'colorCube',
+          editorCube.position
+        );
+        
+        // Sync to render scene
+        if (renderCube.position) {
+          renderCube.position.copyFrom(editorCube.position);
+        }
+      }
+    };
+    
+    // Apply constraints on drag
+    gizmoManager.gizmos.positionGizmo.xGizmo.dragBehavior.onDragObservable.add(limitToRoom);
+    gizmoManager.gizmos.positionGizmo.zGizmo.dragBehavior.onDragObservable.add(limitToRoom);
+    
+    // Start with cube selected to test gizmo visibility
+    // gizmoManager.attachToMesh(null);
 
     // Set up selection handling
     const handleSelection = (objectId: string | null): void => {
