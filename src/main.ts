@@ -359,9 +359,17 @@ const initialize = (): void => {
           constrainRotation
         );
         
-        // Add ray update on rotation end (matches reference)
+        // Hide rays during rotation drag
+        gizmoManager.gizmos.rotationGizmo.yGizmo.dragBehavior.onDragStartObservable.add(() => {
+          if (gizmoManager.attachedMesh === editorCube && rayManager) {
+            rayManager = hideRays(rayManager);
+          }
+        });
+        
+        // Show and update rays after rotation
         gizmoManager.gizmos.rotationGizmo.yGizmo.dragBehavior.onDragEndObservable.add(() => {
           if (gizmoManager.attachedMesh === editorCube && rayManager) {
+            rayManager = showRays(rayManager);
             rayManager = updateRays(
               rayManager,
               editorCube.position,
@@ -408,32 +416,11 @@ const initialize = (): void => {
             const target = editorMesh === cameraRig.coneIndicator ? cameraRig.rigNode : editorMesh;
             gizmoManager.attachToMesh(target);
           }
-
-          // Show rays when cube is selected, hide for camera rig
-          if (rayManager) {
-            if (objectId === 'colorCube' && editorCube) {
-              // Show and update rays for cube
-              rayManager = showRays(rayManager);
-              rayManager = updateRays(
-                rayManager,
-                editorCube.position,
-                editorCube.getWorldMatrix(),
-                { count: 4, maxBounces: 2 } // Default configuration
-              );
-            } else {
-              // Hide rays for camera rig or other objects
-              rayManager = hideRays(rayManager);
-            }
-          }
         } else {
           selectionState = clearSelection(selectionState);
           // Detach gizmo
           if (gizmoManager) {
             gizmoManager.attachToMesh(null);
-          }
-          // Hide rays when nothing selected
-          if (rayManager) {
-            rayManager = hideRays(rayManager);
           }
         }
       }
