@@ -15,8 +15,12 @@ import { createAmbientLight } from './lighting/createLighting';
 import { createInitialSelectionState, selectObject, clearSelection, isSelected } from './state/selectionState';
 import { createPickHandler } from './editor/handlePicking';
 import { applyHighlight, removeHighlight } from './effects/highlightEffect';
+import { createInitialTransformState, updateObjectPosition } from './state/transformState';
+import { createPositionGizmo } from './gizmos/createPositionGizmo';
 import type { SceneConfig } from './types';
 import type { SelectionState } from './state/selectionState';
+import type { TransformState } from './state/transformState';
+import type { PositionGizmoConfig } from './gizmos/createPositionGizmo';
 
 /**
  * Get canvas element by ID with type safety
@@ -35,11 +39,17 @@ const getCanvas = (id: string): HTMLCanvasElement => {
 let editorConfig: SceneConfig | null = null;
 let renderConfig: SceneConfig | null = null;
 let selectionState: SelectionState = createInitialSelectionState();
+let transformState: TransformState = createInitialTransformState();
+let currentGizmo: PositionGizmoConfig | null = null;
 
 /**
  * Cleanup function for disposing resources
  */
 const cleanup = (): void => {
+  if (currentGizmo) {
+    currentGizmo.gizmo.dispose();
+    currentGizmo = null;
+  }
   if (editorConfig) {
     editorConfig.dispose();
     editorConfig = null;
@@ -93,12 +103,60 @@ const initialize = (): void => {
         removeHighlight(renderConfig.scene, selectionState.selectedObjectId);
       }
 
+      // Dispose current gizmo
+      if (currentGizmo) {
+        currentGizmo.gizmo.dispose();
+        currentGizmo = null;
+      }
+
       // Update selection state
       if (objectId) {
         selectionState = selectObject(selectionState, objectId);
         // Apply highlight to newly selected object
         applyHighlight(editorConfig.scene, objectId);
         applyHighlight(renderConfig.scene, objectId);
+        
+        // Create position gizmo for selected object in editor
+        const editorMesh = editorConfig.scene.getMeshByName(objectId);
+        if (editorMesh) {
+          currentGizmo = createPositionGizmo(editorConfig.scene, editorMesh);
+          
+          // Add observer for position changes
+          const originalCallback = currentGizmo.constraints.updateCallback;
+          currentGizmo.gizmo.xGizmo.dragBehavior?.onPositionChangedObservable.add(() => {
+            originalCallback();
+            
+            // Update transform state
+            transformState = updateObjectPosition(
+              transformState,
+              objectId,
+              editorMesh.position
+            );
+            
+            // Sync position to render scene
+            const renderMesh = renderConfig.scene.getMeshByName(objectId);
+            if (renderMesh) {
+              renderMesh.position.copyFrom(editorMesh.position);
+            }
+          });
+          
+          currentGizmo.gizmo.zGizmo.dragBehavior?.onPositionChangedObservable.add(() => {
+            originalCallback();
+            
+            // Update transform state
+            transformState = updateObjectPosition(
+              transformState,
+              objectId,
+              editorMesh.position
+            );
+            
+            // Sync position to render scene
+            const renderMesh = renderConfig.scene.getMeshByName(objectId);
+            if (renderMesh) {
+              renderMesh.position.copyFrom(editorMesh.position);
+            }
+          });
+        }
       } else {
         selectionState = clearSelection(selectionState);
       }
