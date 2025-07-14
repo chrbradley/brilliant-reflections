@@ -1,7 +1,7 @@
 // ABOUTME: Pure functions for creating room geometry with walls, floor, and ceiling
 // ABOUTME: Returns immutable mesh configurations for the room structure
 
-import { MeshBuilder, Scene, Mesh } from 'babylonjs';
+import { MeshBuilder, Scene, Mesh, Color3, StandardMaterial, Texture, DynamicTexture } from 'babylonjs';
 import { ROOM_SIZE, WALL_THICKNESS, ROOM_HALF, WALL_NAMES } from '../constants';
 import { createMatteMaterial } from '../materials/createMatteMaterial';
 
@@ -43,7 +43,69 @@ export interface RoomConfig {
 const WALL_HEIGHT = ROOM_SIZE;
 
 /**
- * Creates the floor mesh
+ * Creates a grid texture for the floor
+ */
+const createGridTexture = (scene: Scene): Texture | null => {
+  try {
+    const textureSize = 512;
+    const gridTexture = new DynamicTexture('gridTexture', textureSize, scene, false);
+    const context = gridTexture.getContext();
+    
+    // Background color
+    context.fillStyle = '#333333'; // Dark grey background
+    context.fillRect(0, 0, textureSize, textureSize);
+    
+    // Grid lines
+    const cellSize = textureSize / 20; // 20 units across
+    
+    // Minor grid lines
+    context.strokeStyle = '#B3B3B3'; // Light grey
+    context.lineWidth = 0.5;
+    context.globalAlpha = 0.25; // 25% opacity for minor lines
+    
+    for (let i = 0; i <= 20; i++) {
+      const pos = i * cellSize;
+      // Vertical lines
+      context.beginPath();
+      context.moveTo(pos, 0);
+      context.lineTo(pos, textureSize);
+      context.stroke();
+      // Horizontal lines
+      context.beginPath();
+      context.moveTo(0, pos);
+      context.lineTo(textureSize, pos);
+      context.stroke();
+    }
+    
+    // Major grid lines (every 5 units)
+    context.strokeStyle = '#B3B3B3';
+    context.lineWidth = 2;
+    context.globalAlpha = 1.0;
+    
+    for (let i = 0; i <= 20; i += 5) {
+      const pos = i * cellSize;
+      // Vertical lines
+      context.beginPath();
+      context.moveTo(pos, 0);
+      context.lineTo(pos, textureSize);
+      context.stroke();
+      // Horizontal lines
+      context.beginPath();
+      context.moveTo(0, pos);
+      context.lineTo(textureSize, pos);
+      context.stroke();
+    }
+    
+    gridTexture.update();
+    return gridTexture;
+  } catch (e) {
+    // In test environment, dynamic texture creation may fail
+    return null;
+  }
+};
+
+/**
+ * Creates the floor mesh with grid pattern
  */
 export const createFloor = (scene: Scene): Mesh => {
   const floor = MeshBuilder.CreateGround(
@@ -53,7 +115,27 @@ export const createFloor = (scene: Scene): Mesh => {
   );
   
   floor.position.y = 0;
-  floor.material = createMatteMaterial('floorMaterial', scene, { r: 0.4, g: 0.4, b: 0.4 });
+  
+  // Create material with grid texture
+  const floorMat = new StandardMaterial('floorMaterial', scene);
+  
+  // Try to create grid texture, fall back to solid color if it fails
+  const gridTexture = createGridTexture(scene);
+  if (gridTexture) {
+    floorMat.diffuseTexture = gridTexture;
+    floorMat.diffuseTexture.uScale = 1;
+    floorMat.diffuseTexture.vScale = 1;
+    floorMat.specularColor = new Color3(0, 0, 0); // No specular
+    floorMat.emissiveColor = new Color3(0.1, 0.1, 0.1); // Slight emissive for visibility
+  } else {
+    // Fallback for test environment
+    floorMat.diffuseColor = new Color3(0.2, 0.2, 0.2); // Dark grey
+    floorMat.specularColor = new Color3(0, 0, 0);
+  }
+  
+  floorMat.backFaceCulling = false;
+  
+  floor.material = floorMat;
   floor.isPickable = false; // Room geometry should not be selectable
   
   return floor;
