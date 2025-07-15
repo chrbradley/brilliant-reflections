@@ -53,11 +53,9 @@ import {
   createInitialUIState,
   updateRayCount,
   updateMaxBounces,
-  updateQuality,
   type UIState,
-  type QualityLevel,
 } from './state/uiState';
-import { bindSliderToState, bindDropdownToState } from './ui/bindControls';
+import { bindSliderToState } from './ui/bindControls';
 import { ReflectionInstanceManager } from './mirrors/ReflectionInstanceManager';
 
 /**
@@ -164,7 +162,7 @@ const initialize = (): void => {
 
     // Create room geometry in both scenes
     createRoom(editorConfig.scene);
-    createRoom(renderConfig.scene);
+    createRoom(renderConfig.scene, false); // Exclude walls and ceiling from render layer
 
     // Get initial state configuration
     const initialState = createInitialStateConfig();
@@ -196,20 +194,6 @@ const initialize = (): void => {
     glowLayer.intensity = 1.2; // Higher intensity for better visibility
     glowLayer.addIncludedOnlyMesh(renderCube);
 
-    // Make all walls 99% transparent (clear)
-    const wallNames = ['northWall', 'southWall', 'eastWall', 'westWall'];
-    wallNames.forEach(wallName => {
-      const wall = renderConfig.scene.getMeshByName(wallName);
-      if (wall && wall instanceof BABYLON.Mesh) {
-        const transparentMaterial = new BABYLON.StandardMaterial(`${wallName}Transparent`, renderConfig.scene);
-        transparentMaterial.alpha = 0.01; // 99% transparent
-        transparentMaterial.backFaceCulling = false;
-        transparentMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0); // No color contribution
-        transparentMaterial.specularColor = new BABYLON.Color3(0, 0, 0); // No specular
-        transparentMaterial.emissiveColor = new BABYLON.Color3(0, 0, 0); // No emissive
-        wall.material = transparentMaterial;
-      }
-    });
 
     // Initialize reflection instance managers
     cubeReflectionManager = new ReflectionInstanceManager({
@@ -785,14 +769,11 @@ const initialize = (): void => {
         'bouncesSlider'
       ) as HTMLInputElement;
       const bouncesValue = document.getElementById('bouncesValue');
-      const qualitySelect = document.getElementById(
-        'qualitySelect'
-      ) as HTMLSelectElement;
       const resetButton = document.getElementById(
         'resetButton'
       ) as HTMLButtonElement;
 
-      if (!raysSlider || !bouncesSlider || !qualitySelect || !resetButton) {
+      if (!raysSlider || !bouncesSlider || !resetButton) {
         console.error('UI controls not found');
         return;
       }
@@ -846,40 +827,6 @@ const initialize = (): void => {
       });
       unbindFunctions.push(unbindBounces);
 
-      // Bind quality dropdown
-      const unbindQuality = bindDropdownToState(qualitySelect, (value) => {
-        uiState = updateQuality(uiState, value as QualityLevel);
-
-        // Apply quality settings to mirror textures
-        if (renderConfig) {
-          const mirrorSize =
-            value === 'low' ? 256 : value === 'medium' ? 512 : 1024;
-
-          // Update all mirror texture sizes
-          renderConfig.scene.materials.forEach((material) => {
-            if (
-              material instanceof BABYLON.StandardMaterial &&
-              material.reflectionTexture instanceof BABYLON.MirrorTexture
-            ) {
-              const oldTexture = material.reflectionTexture;
-              const newTexture = new BABYLON.MirrorTexture(
-                oldTexture.name,
-                mirrorSize,
-                renderConfig.scene,
-                true
-              );
-              newTexture.mirrorPlane = oldTexture.mirrorPlane;
-              newTexture.renderList = oldTexture.renderList;
-              material.reflectionTexture = newTexture;
-              oldTexture.dispose();
-            }
-          });
-
-          // Refresh render pass manager with new textures
-          renderPassManager.refreshMirrorTextures();
-        }
-      });
-      unbindFunctions.push(unbindQuality);
 
       // Bind reset button
       const handleReset = (): void => {
@@ -895,7 +842,6 @@ const initialize = (): void => {
         bouncesSlider.value = uiState.maxBounces.toString();
         if (bouncesValue)
           bouncesValue.textContent = uiState.maxBounces.toString();
-        qualitySelect.value = uiState.quality;
 
         // Reset cube position and rotation using initial state
         if (editorCube && renderCube) {
@@ -959,38 +905,6 @@ const initialize = (): void => {
         updateInstancePositions();
         showInstances();
 
-        // Apply quality settings to mirror textures
-        if (renderConfig) {
-          const mirrorSize =
-            uiState.quality === 'low'
-              ? 256
-              : uiState.quality === 'medium'
-                ? 512
-                : 1024;
-
-          // Update all mirror texture sizes
-          renderConfig.scene.materials.forEach((material) => {
-            if (
-              material instanceof BABYLON.StandardMaterial &&
-              material.reflectionTexture instanceof BABYLON.MirrorTexture
-            ) {
-              const oldTexture = material.reflectionTexture;
-              const newTexture = new BABYLON.MirrorTexture(
-                oldTexture.name,
-                mirrorSize,
-                renderConfig.scene,
-                true
-              );
-              newTexture.mirrorPlane = oldTexture.mirrorPlane;
-              newTexture.renderList = oldTexture.renderList;
-              material.reflectionTexture = newTexture;
-              oldTexture.dispose();
-            }
-          });
-
-          // Refresh render pass manager with new textures
-          renderPassManager.refreshMirrorTextures();
-        }
       };
 
       resetButton.addEventListener('click', handleReset);

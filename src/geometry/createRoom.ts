@@ -163,7 +163,7 @@ export const createFloor = (scene: Scene): Mesh => {
 /**
  * Creates the ceiling mesh
  */
-export const createCeiling = (scene: Scene): Mesh => {
+export const createCeiling = (scene: Scene, includeInRenderLayer: boolean = true): Mesh => {
   const ceiling = MeshBuilder.CreateGround(
     WALL_NAMES.CEILING,
     { width: ROOM_SIZE, height: ROOM_SIZE },
@@ -182,8 +182,10 @@ export const createCeiling = (scene: Scene): Mesh => {
   // Flip ceiling to face downward
   ceiling.rotation.x = Math.PI;
 
-  // Mark as renderable so it appears in both views
-  markAsRenderable(ceiling);
+  // Mark as renderable only if requested
+  if (includeInRenderLayer) {
+    markAsRenderable(ceiling);
+  }
 
   return ceiling;
 };
@@ -196,7 +198,8 @@ export const createWall = (
   rotation: Rotation,
   name: string,
   scene: Scene,
-  isReflective: boolean = false
+  isReflective: boolean = false,
+  includeInRenderLayer: boolean = true
 ): Mesh => {
   const wall = MeshBuilder.CreateBox(
     name,
@@ -239,8 +242,10 @@ export const createWall = (
   // Ensure walls are visible from inside (disable backface culling)
   wall.material.backFaceCulling = false;
 
-  // Mark as renderable so it appears in both views
-  markAsRenderable(wall);
+  // Mark as renderable only if requested
+  if (includeInRenderLayer) {
+    markAsRenderable(wall);
+  }
 
   return wall;
 };
@@ -257,35 +262,39 @@ const createWallPosition = (x: number, z: number): Position => ({
 /**
  * Creates all walls for the room
  */
-const createWalls = (scene: Scene): RoomConfig['walls'] => {
+const createWalls = (scene: Scene, includeInRenderLayer: boolean = true): RoomConfig['walls'] => {
   const walls = {
     north: createWall(
       createWallPosition(0, ROOM_HALF),
       { x: 0, y: 0, z: 0 },
       WALL_NAMES.NORTH,
       scene,
-      true // reflective
+      true, // reflective
+      includeInRenderLayer
     ),
     south: createWall(
       createWallPosition(0, -ROOM_HALF),
       { x: 0, y: Math.PI, z: 0 },
       WALL_NAMES.SOUTH,
       scene,
-      false // non-reflective
+      false, // non-reflective
+      includeInRenderLayer
     ),
     east: createWall(
       createWallPosition(ROOM_HALF, 0),
       { x: 0, y: Math.PI / 2, z: 0 },
       WALL_NAMES.EAST,
       scene,
-      true // reflective
+      true, // reflective
+      includeInRenderLayer
     ),
     west: createWall(
       createWallPosition(-ROOM_HALF, 0),
       { x: 0, y: -Math.PI / 2, z: 0 },
       WALL_NAMES.WEST,
       scene,
-      true // reflective
+      true, // reflective
+      includeInRenderLayer
     ),
   };
 
@@ -296,12 +305,13 @@ const createWalls = (scene: Scene): RoomConfig['walls'] => {
  * Creates a complete room with floor, ceiling, and walls
  *
  * @param scene - The scene to add the room to
+ * @param includeWallsAndCeiling - Whether to include walls and ceiling in render layer (default: true)
  * @returns Room configuration with all meshes
  */
-export const createRoom = (scene: Scene): RoomConfig => {
+export const createRoom = (scene: Scene, includeWallsAndCeiling: boolean = true): RoomConfig => {
   const floor = createFloor(scene);
-  const ceiling = createCeiling(scene);
-  const walls = createWalls(scene);
+  const ceiling = createCeiling(scene, includeWallsAndCeiling);
+  const walls = createWalls(scene, includeWallsAndCeiling);
 
   return {
     floor,

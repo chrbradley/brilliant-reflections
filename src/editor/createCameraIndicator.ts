@@ -8,6 +8,7 @@ import {
   StandardMaterial,
   Color3,
   Vector3,
+  VertexData,
 } from 'babylonjs';
 import { markAsEditorOnly } from '../utils/applyLayerMask';
 
@@ -19,42 +20,77 @@ export interface CameraIndicatorConfig {
 }
 
 /**
- * Creates a box indicator for the camera
- * The Z-axis (depth) is twice as long to show viewing direction
+ * Creates a camera-shaped frustum indicator
+ * Front face (lens) is wider, back face (eyepiece) is narrower
  */
 const createIndicatorBox = (scene: Scene): Mesh => {
-  const box = MeshBuilder.CreateBox(
-    'cameraIndicator',
-    {
-      width: 1, // X dimension
-      height: 1, // Y dimension
-      depth: 2, // Z dimension (viewing direction)
-    },
-    scene
-  );
-
-  // Position the box so its back is at the origin (camera position)
-  // This way the elongated part points forward from the camera location
-  box.position.z = 1; // Move forward by half the depth
+  // Create custom camera frustum geometry
+  const frontScale = 1.25; // Front face (lens) scale
+  const backScale = 0.75;  // Back face (eyepiece) scale
+  const depth = 2; // Total depth
+  
+  // Define the 8 vertices of the frustum centered at origin
+  const halfDepth = depth / 2;
+  const positions = [
+    // Back face (eyepiece) - smaller
+    -backScale/2, -backScale/2, -halfDepth,    // 0: back bottom left
+     backScale/2, -backScale/2, -halfDepth,    // 1: back bottom right
+     backScale/2,  backScale/2, -halfDepth,    // 2: back top right
+    -backScale/2,  backScale/2, -halfDepth,    // 3: back top left
+    
+    // Front face (lens) - larger
+    -frontScale/2, -frontScale/2, halfDepth,  // 4: front bottom left
+     frontScale/2, -frontScale/2, halfDepth,  // 5: front bottom right
+     frontScale/2,  frontScale/2, halfDepth,  // 6: front top right
+    -frontScale/2,  frontScale/2, halfDepth,  // 7: front top left
+  ];
+  
+  // Define the 12 triangular faces (2 triangles per face, 6 faces)
+  const indices = [
+    // Back face
+    0, 1, 2,   0, 2, 3,
+    // Front face 
+    4, 7, 6,   4, 6, 5,
+    // Bottom face
+    0, 4, 5,   0, 5, 1,
+    // Top face
+    2, 6, 7,   2, 7, 3,
+    // Left face
+    0, 3, 7,   0, 7, 4,
+    // Right face
+    1, 5, 6,   1, 6, 2,
+  ];
+  
+  // Create normals for proper lighting
+  const normals = [];
+  VertexData.ComputeNormals(positions, indices, normals);
+  
+  // Create the mesh
+  const camera = new Mesh('cameraIndicator', scene);
+  const vertexData = new VertexData();
+  vertexData.positions = positions;
+  vertexData.indices = indices;
+  vertexData.normals = normals;
+  vertexData.applyToMesh(camera);
 
   // Create a semi-transparent blue material
   const material = new StandardMaterial('cameraIndicatorMat', scene);
   material.diffuseColor = new Color3(0, 0.7, 1);
   material.alpha = 0.7;
-  box.material = material;
+  camera.material = material;
 
   // Enable edge rendering for better visibility
-  box.enableEdgesRendering();
-  box.edgesWidth = 4.0;
-  box.edgesColor = new Color3(0, 0.5, 1).toColor4();
+  camera.enableEdgesRendering();
+  camera.edgesWidth = 4.0;
+  camera.edgesColor = new Color3(0, 0.5, 1).toColor4();
 
   // Make it pickable for gizmo interaction
-  box.isPickable = true;
+  camera.isPickable = true;
 
   // Mark as editor-only so it doesn't appear in render view
-  markAsEditorOnly(box);
+  markAsEditorOnly(camera);
 
-  return box;
+  return camera;
 };
 
 /**

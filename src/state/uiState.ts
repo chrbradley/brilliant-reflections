@@ -22,7 +22,7 @@ export const createInitialUIState = (): UIState => {
   return Object.freeze({
     rayCount: 4,
     maxBounces: 2,
-    quality: 'medium' as QualityLevel,
+    quality: 'high' as QualityLevel,
   });
 };
 
