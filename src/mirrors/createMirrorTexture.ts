@@ -24,10 +24,9 @@ export const calculateReflectionPlane = (
   position: Vector3,
   normal: Vector3
 ): Plane => {
-  // Create plane from position and normal
+  // Create plane from position and normal (scaled by -1 like in working example)
   // Plane equation: ax + by + cz + d = 0
-  // where (a,b,c) is the normal and d = -dot(normal, position)
-  return Plane.FromPositionAndNormal(position, normal);
+  return Plane.FromPositionAndNormal(position, normal.scale(-1));
 };
 
 /**

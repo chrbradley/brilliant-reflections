@@ -45,17 +45,13 @@ export class RenderPassManager {
    * Collect all mirror textures from the scene
    */
   private collectMirrorTextures(): void {
-    console.log('Collecting mirror textures for walls:', this.mirrorWalls);
     this.mirrorWalls.forEach(wallName => {
       const wall = this.scene.getMeshByName(wallName);
-      console.log(`Checking wall ${wallName}:`, wall?.name, 'has material:', !!wall?.material);
       
       if (wall && wall.material instanceof StandardMaterial) {
         const material = wall.material as StandardMaterial;
-        console.log(`Wall ${wallName} has StandardMaterial, reflection texture:`, !!material.reflectionTexture);
         
         if (material.reflectionTexture instanceof MirrorTexture) {
-          console.log(`Wall ${wallName} has MirrorTexture, adding to collection`);
           this.mirrorTextures.set(wallName, material.reflectionTexture);
           // Store original render list
           this.originalRenderLists.set(
@@ -65,7 +61,6 @@ export class RenderPassManager {
         }
       }
     });
-    console.log('Total mirror textures collected:', this.mirrorTextures.size);
   }
 
   /**
@@ -75,7 +70,6 @@ export class RenderPassManager {
     if (this.maxBounces < 1) return;
     
     if (this.mirrorTextures.size === 0) {
-      console.warn('No mirror textures found, skipping render passes');
       return;
     }
 
@@ -83,8 +77,6 @@ export class RenderPassManager {
     if (!this.needsUpdate) {
       return;
     }
-
-    console.log(`Executing ${this.maxBounces} render passes for ${this.mirrorTextures.size} mirrors`);
 
     // First pass: Direct reflections only
     this.executePass(1);

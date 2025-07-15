@@ -146,6 +146,21 @@ const initialize = (): void => {
     createRoom(editorConfig.scene);
     createRoom(renderConfig.scene);
 
+    // Get initial state configuration
+    const initialState = createInitialStateConfig();
+
+    // Create the interactive cube in both scenes (before mirrors so it's included in render lists)
+    const editorCube = createCube(
+      editorConfig.scene,
+      initialState.cube.position,
+      initialState.cube.rotation
+    );
+    const renderCube = createCube(
+      renderConfig.scene,
+      initialState.cube.position,
+      initialState.cube.rotation
+    );
+
     // Apply mirrors to render scene walls
     const mirrorWalls = getMirrorWalls();
     for (const wallName of mirrorWalls) {
@@ -190,24 +205,8 @@ const initialize = (): void => {
     
     // Execute initial render passes after a small delay to ensure scene is ready
     setTimeout(() => {
-      console.log('Executing initial render passes');
       renderPassManager.executeRenderPasses();
     }, 100);
-
-    // Get initial state configuration
-    const initialState = createInitialStateConfig();
-
-    // Create the interactive cube in both scenes
-    const editorCube = createCube(
-      editorConfig.scene,
-      initialState.cube.position,
-      initialState.cube.rotation
-    );
-    const renderCube = createCube(
-      renderConfig.scene,
-      initialState.cube.position,
-      initialState.cube.rotation
-    );
 
     // Create camera indicator in editor scene only (shows render camera position)
     const cameraIndicator = createCameraIndicator(
@@ -857,8 +856,8 @@ const initialize = (): void => {
     renderConfig.engine.runRenderLoop(() => {
       // Only render if scene has active cameras
       if (renderConfig?.scene.activeCamera) {
-        // Execute multi-pass rendering for reflections
-        renderPassManager.executeRenderPasses();
+        // TEMPORARILY DISABLED: Execute multi-pass rendering for reflections
+        // renderPassManager.executeRenderPasses();
         
         // Final render to screen
         renderConfig.scene.render();

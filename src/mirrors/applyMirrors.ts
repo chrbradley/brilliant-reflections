@@ -1,7 +1,7 @@
 // ABOUTME: Functions for applying mirror materials to walls
 // ABOUTME: Handles mirror texture creation and mesh assignment
 
-import { StandardMaterial, MirrorTexture, Mesh } from 'babylonjs';
+import { StandardMaterial, MirrorTexture, Mesh, Color3 } from 'babylonjs';
 import type { MirrorConfig } from './createMirrorTexture';
 
 /**
@@ -51,9 +51,14 @@ export const createMirrorMaterial = (
     // Initially empty render list - will be populated later
     mirrorTexture.renderList = [];
 
-    // Apply to material
+    // Apply to material (like in working example)
     material.reflectionTexture = mirrorTexture;
-    material.disableLighting = true; // Pure reflection
+    material.reflectionTexture.level = 1; // Full reflection
+    
+    // Make reflections more vivid
+    material.diffuseColor = new Color3(0.1, 0.1, 0.1); // Very dark diffuse so reflection dominates
+    material.specularColor = new Color3(1, 1, 1); // Bright specular for shininess
+    material.specularPower = 64; // Higher value = more focused reflections
   } catch (e) {
     // In test environment, WebGL context may not be available
     // Return material without mirror texture
