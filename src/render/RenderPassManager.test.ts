@@ -216,6 +216,27 @@ describe('RenderPassManager', () => {
     });
   });
 
+  describe('refreshMirrorTextures', () => {
+    it('should re-collect mirror textures from scene', () => {
+      const config = {
+        scene: mockScene,
+        maxBounces: 2,
+        mirrorWalls: ['northWall', 'eastWall'],
+      };
+
+      const manager = new RenderPassManager(config);
+      
+      // Clear mock to track new calls
+      mockScene.getMeshByName.mockClear();
+      
+      manager.refreshMirrorTextures();
+
+      // Should re-collect textures
+      expect(mockScene.getMeshByName).toHaveBeenCalledWith('northWall');
+      expect(mockScene.getMeshByName).toHaveBeenCalledWith('eastWall');
+    });
+  });
+
   describe('dispose', () => {
     it('should clear internal maps', () => {
       const config = {

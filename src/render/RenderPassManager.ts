@@ -143,6 +143,15 @@ export class RenderPassManager {
   }
 
   /**
+   * Refresh mirror texture references after quality change
+   */
+  public refreshMirrorTextures(): void {
+    this.mirrorTextures.clear();
+    this.originalRenderLists.clear();
+    this.collectMirrorTextures();
+  }
+
+  /**
    * Dispose of resources
    */
   public dispose(): void {

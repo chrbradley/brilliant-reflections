@@ -711,6 +711,10 @@ const initialize = (): void => {
               oldTexture.dispose();
             }
           });
+
+          // Refresh render pass manager with new textures
+          renderPassManager.refreshMirrorTextures();
+          renderPassManager.executeRenderPasses();
         }
       });
       unbindFunctions.push(unbindQuality);
@@ -817,6 +821,10 @@ const initialize = (): void => {
               oldTexture.dispose();
             }
           });
+
+          // Refresh render pass manager with new textures
+          renderPassManager.refreshMirrorTextures();
+          renderPassManager.executeRenderPasses();
         }
       };
 
