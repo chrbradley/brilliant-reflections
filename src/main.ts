@@ -800,7 +800,8 @@ const initialize = (): void => {
         // Update render pass manager
         renderPassManager.setBounceCount(value);
         
-        // Update instance visibility based on bounce count
+        // Update instance positions and visibility based on bounce count
+        updateInstancePositions();
         showInstances();
 
         // Update rays if cube is selected
