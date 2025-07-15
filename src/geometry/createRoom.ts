@@ -12,6 +12,7 @@ import {
 } from 'babylonjs';
 import { ROOM_SIZE, WALL_THICKNESS, ROOM_HALF, WALL_NAMES } from '../constants';
 import { createMatteMaterial } from '../materials/createMatteMaterial';
+import { createEmissiveMaterial } from '../materials/createEmissiveMaterial';
 import { markAsRenderable } from '../utils/applyLayerMask';
 
 /**
@@ -150,6 +151,7 @@ export const createFloor = (scene: Scene): Mesh => {
   floorMat.backFaceCulling = false;
 
   floor.material = floorMat;
+  floor.material.backFaceCulling = false; // Ensure visible from both sides
   floor.isPickable = false; // Room geometry should not be selectable
 
   // Mark as renderable so it appears in both views
@@ -169,11 +171,12 @@ export const createCeiling = (scene: Scene): Mesh => {
   );
 
   ceiling.position.y = WALL_HEIGHT;
-  ceiling.material = createMatteMaterial('ceilingMaterial', scene, {
-    r: 0.8,
-    g: 0.8,
-    b: 0.8,
-  });
+  ceiling.material = createEmissiveMaterial(
+    'ceilingMaterial',
+    scene,
+    new Color3(0.9, 0.9, 0.9) // Slightly dimmed white for comfortable viewing
+  );
+  ceiling.material.backFaceCulling = false; // Ensure visible from both sides
   ceiling.isPickable = false; // Room geometry should not be selectable
 
   // Flip ceiling to face downward
@@ -232,6 +235,9 @@ export const createWall = (
     });
   }
   wall.isPickable = false; // Room geometry should not be selectable
+  
+  // Ensure walls are visible from inside (disable backface culling)
+  wall.material.backFaceCulling = false;
 
   // Mark as renderable so it appears in both views
   markAsRenderable(wall);
