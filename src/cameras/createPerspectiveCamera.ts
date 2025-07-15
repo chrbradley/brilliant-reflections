@@ -34,8 +34,9 @@ const configurePerspectiveSettings = (camera: UniversalCamera): void => {
   camera.fov = degreesToRadians(60);
 
   // Set reasonable clipping planes for our room scene
+  // Extended far plane to see distant mirror instances (5+ bounces)
   camera.minZ = 0.1;
-  camera.maxZ = 100;
+  camera.maxZ = 1000;
 };
 
 /**
