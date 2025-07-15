@@ -19,10 +19,10 @@ export const createMockWebGLContext = (): any => ({
   getExtension: vi.fn(() => null),
   getParameter: vi.fn((param: number) => {
     // Return appropriate values for common parameters
-    if (param === 0x0D33) return 1024; // MAX_TEXTURE_SIZE
-    if (param === 0x851C) return 16; // MAX_VERTEX_TEXTURE_IMAGE_UNITS
-    if (param === 0x1F01) return 'Mock WebGL'; // RENDERER
-    if (param === 0x1F00) return 'Mock'; // VENDOR
+    if (param === 0x0d33) return 1024; // MAX_TEXTURE_SIZE
+    if (param === 0x851c) return 16; // MAX_VERTEX_TEXTURE_IMAGE_UNITS
+    if (param === 0x1f01) return 'Mock WebGL'; // RENDERER
+    if (param === 0x1f00) return 'Mock'; // VENDOR
     return 0;
   }),
   pixelStorei: vi.fn(),
@@ -43,7 +43,7 @@ export const createMockWebGLContext = (): any => ({
   createFramebuffer: vi.fn(),
   bindFramebuffer: vi.fn(),
   framebufferTexture2D: vi.fn(),
-  checkFramebufferStatus: vi.fn(() => 0x8CD5), // FRAMEBUFFER_COMPLETE
+  checkFramebufferStatus: vi.fn(() => 0x8cd5), // FRAMEBUFFER_COMPLETE
   createRenderbuffer: vi.fn(),
   bindRenderbuffer: vi.fn(),
   renderbufferStorage: vi.fn(),

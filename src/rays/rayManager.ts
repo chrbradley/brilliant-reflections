@@ -17,14 +17,14 @@ export interface RayManager {
 
 /**
  * Creates a new ray manager
- * 
+ *
  * @param scene - Scene to manage rays in
  * @returns Ray manager instance
  */
 export const createRayManager = (scene: Scene): RayManager => {
   const parentNode = new TransformNode('raysParent', scene);
   parentNode.setEnabled(false); // Start hidden
-  
+
   return {
     parentNode,
     scene,
@@ -35,7 +35,7 @@ export const createRayManager = (scene: Scene): RayManager => {
 
 /**
  * Shows the ray visualization
- * 
+ *
  * @param manager - Ray manager instance
  * @returns Updated manager
  */
@@ -49,7 +49,7 @@ export const showRays = (manager: RayManager): RayManager => {
 
 /**
  * Hides the ray visualization
- * 
+ *
  * @param manager - Ray manager instance
  * @returns Updated manager
  */
@@ -63,7 +63,7 @@ export const hideRays = (manager: RayManager): RayManager => {
 
 /**
  * Updates ray visualization with new configuration
- * 
+ *
  * @param manager - Ray manager instance
  * @param origin - Ray origin position
  * @param worldMatrix - World transformation matrix
@@ -84,9 +84,9 @@ export const updateRays = (
     scene: manager.scene,
     parentNode: manager.parentNode,
   };
-  
+
   createAllRayMeshes(vizConfig);
-  
+
   return {
     ...manager,
     currentConfig: config,
@@ -95,7 +95,7 @@ export const updateRays = (
 
 /**
  * Disposes of all ray resources
- * 
+ *
  * @param manager - Ray manager instance
  */
 export const disposeRayManager = (manager: RayManager): void => {

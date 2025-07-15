@@ -30,7 +30,7 @@ export interface ButtonConfig {
 
 /**
  * Creates a slider configuration
- * 
+ *
  * @param id - Element ID
  * @param min - Minimum value
  * @param max - Maximum value
@@ -44,16 +44,16 @@ export const createSlider = (
   value: number
 ): SliderConfig => {
   const element = document.getElementById(id) as HTMLInputElement;
-  
+
   if (!element) {
     throw new Error(`Slider element with id "${id}" not found`);
   }
-  
+
   // Configure element
   element.min = min.toString();
   element.max = max.toString();
   element.value = value.toString();
-  
+
   return Object.freeze({
     element,
     min,
@@ -64,7 +64,7 @@ export const createSlider = (
 
 /**
  * Creates a dropdown configuration
- * 
+ *
  * @param id - Element ID
  * @param options - Available options
  * @param value - Initial value
@@ -76,14 +76,14 @@ export const createDropdown = (
   value: string
 ): DropdownConfig => {
   const element = document.getElementById(id) as HTMLSelectElement;
-  
+
   if (!element) {
     throw new Error(`Dropdown element with id "${id}" not found`);
   }
-  
+
   // Set initial value
   element.value = value;
-  
+
   return Object.freeze({
     element,
     options: [...options], // Copy array to ensure immutability
@@ -93,24 +93,21 @@ export const createDropdown = (
 
 /**
  * Creates a button configuration
- * 
+ *
  * @param id - Element ID
  * @param text - Button text
  * @returns Immutable button configuration
  */
-export const createButton = (
-  id: string,
-  text: string
-): ButtonConfig => {
+export const createButton = (id: string, text: string): ButtonConfig => {
   const element = document.getElementById(id) as HTMLButtonElement;
-  
+
   if (!element) {
     throw new Error(`Button element with id "${id}" not found`);
   }
-  
+
   // Set button text
   element.textContent = text;
-  
+
   return Object.freeze({
     element,
     text,
@@ -119,7 +116,7 @@ export const createButton = (
 
 /**
  * Gets current slider value
- * 
+ *
  * @param slider - Slider configuration
  * @returns Current numeric value
  */
@@ -129,7 +126,7 @@ export const getSliderValue = (slider: SliderConfig): number => {
 
 /**
  * Gets current dropdown value
- * 
+ *
  * @param dropdown - Dropdown configuration
  * @returns Current selected value
  */
@@ -139,7 +136,7 @@ export const getDropdownValue = (dropdown: DropdownConfig): string => {
 
 /**
  * Updates slider display element
- * 
+ *
  * @param slider - Slider configuration
  * @param displayId - ID of element to update
  */

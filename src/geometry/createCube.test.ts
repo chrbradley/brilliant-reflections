@@ -15,10 +15,10 @@ describe('createCube', () => {
 
     expect(cube).toBeDefined();
     expect(cube.name).toBe('colorCube');
-    
+
     // Cube should be 2x2x2 units
     // Note: Box is created with size parameter, not scaling
-    
+
     sceneConfig.dispose();
   });
 
@@ -30,7 +30,7 @@ describe('createCube', () => {
     expect(cube.position.x).toBe(0);
     expect(cube.position.y).toBe(1); // 1 unit above ground
     expect(cube.position.z).toBe(3); // 3 units forward
-    
+
     sceneConfig.dispose();
   });
 
@@ -47,7 +47,7 @@ describe('createCube', () => {
     expect(CUBE_FACE_COLORS.BACK).toBeDefined();
     expect(CUBE_FACE_COLORS.RIGHT).toBeDefined();
     expect(CUBE_FACE_COLORS.LEFT).toBeDefined();
-    
+
     sceneConfig.dispose();
   });
 
@@ -57,7 +57,7 @@ describe('createCube', () => {
     const cube = createCube(sceneConfig.scene);
 
     expect(cube.isPickable).toBe(true);
-    
+
     sceneConfig.dispose();
   });
 
@@ -70,19 +70,19 @@ describe('createCube', () => {
     expect(cube.position.x).toBe(customPosition.x);
     expect(cube.position.y).toBe(customPosition.y);
     expect(cube.position.z).toBe(customPosition.z);
-    
+
     sceneConfig.dispose();
   });
 
   it('should be a pure function returning new instances', () => {
     const canvas = document.createElement('canvas');
     const sceneConfig = createEditorScene(canvas);
-    
+
     const cube1 = createCube(sceneConfig.scene);
     const cube2 = createCube(sceneConfig.scene);
 
     expect(cube1).not.toBe(cube2);
-    
+
     sceneConfig.dispose();
   });
 
@@ -95,7 +95,7 @@ describe('createCube', () => {
     expect(cube).toHaveProperty('rotation');
     expect(cube).toHaveProperty('scaling');
     expect(cube).toHaveProperty('material');
-    
+
     sceneConfig.dispose();
   });
 });

@@ -19,13 +19,13 @@ const HIGHLIGHT_CONFIG = {
 
 /**
  * Applies highlight effect to a mesh
- * 
+ *
  * @param scene - The scene containing the mesh
  * @param objectId - ID of the mesh to highlight
  */
 export const applyHighlight = (scene: Scene, objectId: string): void => {
   const mesh = scene.getMeshByName(objectId);
-  
+
   if (!mesh || !(mesh instanceof Mesh)) {
     return;
   }
@@ -38,12 +38,12 @@ export const applyHighlight = (scene: Scene, objectId: string): void => {
   // Boost emissive color if mesh has StandardMaterial
   if (mesh.material && mesh.material instanceof StandardMaterial) {
     const material = mesh.material as StandardMaterial;
-    
+
     // Store original emissive color
     if (!originalEmissiveColors.has(objectId)) {
       originalEmissiveColors.set(objectId, material.emissiveColor.clone());
     }
-    
+
     // Add emissive boost
     const boostedColor = material.emissiveColor.add(
       new Color3(
@@ -52,20 +52,20 @@ export const applyHighlight = (scene: Scene, objectId: string): void => {
         HIGHLIGHT_CONFIG.emissiveBoost
       )
     );
-    
+
     material.emissiveColor = boostedColor;
   }
 };
 
 /**
  * Removes highlight effect from a mesh
- * 
+ *
  * @param scene - The scene containing the mesh
  * @param objectId - ID of the mesh to unhighlight
  */
 export const removeHighlight = (scene: Scene, objectId: string): void => {
   const mesh = scene.getMeshByName(objectId);
-  
+
   if (!mesh || !(mesh instanceof Mesh)) {
     return;
   }
@@ -76,7 +76,7 @@ export const removeHighlight = (scene: Scene, objectId: string): void => {
   // Restore original emissive color if stored
   if (mesh.material && mesh.material instanceof StandardMaterial) {
     const originalColor = originalEmissiveColors.get(objectId);
-    
+
     if (originalColor) {
       const material = mesh.material as StandardMaterial;
       material.emissiveColor = originalColor;

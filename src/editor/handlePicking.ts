@@ -15,7 +15,7 @@ export type OnPickCallback = (objectId: string | null) => void;
 
 /**
  * Creates a pick handler function for the scene
- * 
+ *
  * @param scene - The scene to handle picks in
  * @param onPick - Callback when object is picked
  * @param clearOnEmpty - Whether to call onPick(null) when clicking empty space
@@ -34,7 +34,7 @@ export const createPickHandler = (
     }
 
     const pickInfo = pointerInfo.pickInfo;
-    
+
     // Check if we hit something
     if (pickInfo?.hit && pickInfo.pickedMesh?.isPickable) {
       // Call callback with mesh name/id

@@ -14,7 +14,7 @@ const updateOrthographicAspectRatio = (
     const aspectRatio = canvas.width / canvas.height;
     const halfHeight = 10; // Half of our 20-unit view height
     const halfWidth = halfHeight * aspectRatio;
-    
+
     // Update bounds to maintain aspect ratio
     (camera as any).orthoLeft = -halfWidth;
     (camera as any).orthoRight = halfWidth;
@@ -25,7 +25,7 @@ const updateOrthographicAspectRatio = (
 
 /**
  * Attaches a camera to the scene and canvas
- * 
+ *
  * @param camera - The camera to attach
  * @param scene - The scene to attach to
  * @param canvas - The canvas element for controls
@@ -39,10 +39,10 @@ export const attachCamera = (
 ): void => {
   // Set as active camera
   scene.activeCamera = camera;
-  
+
   // Handle aspect ratio for orthographic cameras
   updateOrthographicAspectRatio(camera, canvas);
-  
+
   // Attach controls to canvas unless prevented
   if (!preventDefaultEvents) {
     camera.attachControl(canvas, true);

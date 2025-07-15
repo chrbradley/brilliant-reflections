@@ -1,7 +1,15 @@
 // ABOUTME: Pure functions for creating room geometry with walls, floor, and ceiling
 // ABOUTME: Returns immutable mesh configurations for the room structure
 
-import { MeshBuilder, Scene, Mesh, Color3, StandardMaterial, Texture, DynamicTexture } from 'babylonjs';
+import {
+  MeshBuilder,
+  Scene,
+  Mesh,
+  Color3,
+  StandardMaterial,
+  Texture,
+  DynamicTexture,
+} from 'babylonjs';
 import { ROOM_SIZE, WALL_THICKNESS, ROOM_HALF, WALL_NAMES } from '../constants';
 import { createMatteMaterial } from '../materials/createMatteMaterial';
 
@@ -48,21 +56,26 @@ const WALL_HEIGHT = ROOM_SIZE;
 const createGridTexture = (scene: Scene): Texture | null => {
   try {
     const textureSize = 512;
-    const gridTexture = new DynamicTexture('gridTexture', textureSize, scene, false);
+    const gridTexture = new DynamicTexture(
+      'gridTexture',
+      textureSize,
+      scene,
+      false
+    );
     const context = gridTexture.getContext();
-    
+
     // Background color
     context.fillStyle = '#333333'; // Dark grey background
     context.fillRect(0, 0, textureSize, textureSize);
-    
+
     // Grid lines
     const cellSize = textureSize / 20; // 20 units across
-    
+
     // Minor grid lines
     context.strokeStyle = '#B3B3B3'; // Light grey
     context.lineWidth = 0.5;
     context.globalAlpha = 0.25; // 25% opacity for minor lines
-    
+
     for (let i = 0; i <= 20; i++) {
       const pos = i * cellSize;
       // Vertical lines
@@ -76,12 +89,12 @@ const createGridTexture = (scene: Scene): Texture | null => {
       context.lineTo(textureSize, pos);
       context.stroke();
     }
-    
+
     // Major grid lines (every 5 units)
     context.strokeStyle = '#B3B3B3';
     context.lineWidth = 2;
     context.globalAlpha = 1.0;
-    
+
     for (let i = 0; i <= 20; i += 5) {
       const pos = i * cellSize;
       // Vertical lines
@@ -95,7 +108,7 @@ const createGridTexture = (scene: Scene): Texture | null => {
       context.lineTo(textureSize, pos);
       context.stroke();
     }
-    
+
     gridTexture.update();
     return gridTexture;
   } catch (e) {
@@ -113,12 +126,12 @@ export const createFloor = (scene: Scene): Mesh => {
     { width: ROOM_SIZE, height: ROOM_SIZE },
     scene
   );
-  
+
   floor.position.y = 0;
-  
+
   // Create material with grid texture
   const floorMat = new StandardMaterial('floorMaterial', scene);
-  
+
   // Try to create grid texture, fall back to solid color if it fails
   const gridTexture = createGridTexture(scene);
   if (gridTexture) {
@@ -132,12 +145,12 @@ export const createFloor = (scene: Scene): Mesh => {
     floorMat.diffuseColor = new Color3(0.2, 0.2, 0.2); // Dark grey
     floorMat.specularColor = new Color3(0, 0, 0);
   }
-  
+
   floorMat.backFaceCulling = false;
-  
+
   floor.material = floorMat;
   floor.isPickable = false; // Room geometry should not be selectable
-  
+
   return floor;
 };
 
@@ -150,14 +163,18 @@ export const createCeiling = (scene: Scene): Mesh => {
     { width: ROOM_SIZE, height: ROOM_SIZE },
     scene
   );
-  
+
   ceiling.position.y = WALL_HEIGHT;
-  ceiling.material = createMatteMaterial('ceilingMaterial', scene, { r: 0.8, g: 0.8, b: 0.8 });
+  ceiling.material = createMatteMaterial('ceilingMaterial', scene, {
+    r: 0.8,
+    g: 0.8,
+    b: 0.8,
+  });
   ceiling.isPickable = false; // Room geometry should not be selectable
-  
+
   // Flip ceiling to face downward
   ceiling.rotation.x = Math.PI;
-  
+
   return ceiling;
 };
 
@@ -180,27 +197,35 @@ export const createWall = (
     },
     scene
   );
-  
+
   // Apply position
   wall.position.x = position.x;
   wall.position.y = position.y;
   wall.position.z = position.z;
-  
+
   // Apply rotation
   wall.rotation.x = rotation.x;
   wall.rotation.y = rotation.y;
   wall.rotation.z = rotation.z;
-  
+
   // Apply material - different color for reflective walls
   if (isReflective) {
     // Light blue-grey for reflective walls (will be replaced with mirror material in render scene)
-    wall.material = createMatteMaterial(`${name}Material`, scene, { r: 0.55, g: 0.55, b: 0.75 });
+    wall.material = createMatteMaterial(`${name}Material`, scene, {
+      r: 0.55,
+      g: 0.55,
+      b: 0.75,
+    });
   } else {
     // Standard grey for non-reflective walls
-    wall.material = createMatteMaterial(`${name}Material`, scene, { r: 0.65, g: 0.65, b: 0.65 });
+    wall.material = createMatteMaterial(`${name}Material`, scene, {
+      r: 0.65,
+      g: 0.65,
+      b: 0.65,
+    });
   }
   wall.isPickable = false; // Room geometry should not be selectable
-  
+
   return wall;
 };
 
@@ -247,13 +272,13 @@ const createWalls = (scene: Scene): RoomConfig['walls'] => {
       true // reflective
     ),
   };
-  
+
   return walls;
 };
 
 /**
  * Creates a complete room with floor, ceiling, and walls
- * 
+ *
  * @param scene - The scene to add the room to
  * @returns Room configuration with all meshes
  */
@@ -261,7 +286,7 @@ export const createRoom = (scene: Scene): RoomConfig => {
   const floor = createFloor(scene);
   const ceiling = createCeiling(scene);
   const walls = createWalls(scene);
-  
+
   return {
     floor,
     ceiling,

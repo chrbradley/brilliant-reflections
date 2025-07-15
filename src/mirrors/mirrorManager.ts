@@ -24,7 +24,7 @@ export interface MirrorEffect {
 
 /**
  * Creates initial mirror state
- * 
+ *
  * @returns Initial state with level 1
  */
 export const createMirrorState = (): MirrorState => ({
@@ -35,7 +35,7 @@ export const createMirrorState = (): MirrorState => ({
 
 /**
  * Updates mirror recursion level
- * 
+ *
  * @param state - Current state
  * @param level - New level (0-4)
  * @returns Updated state
@@ -45,7 +45,7 @@ export const updateMirrorLevel = (
   level: number
 ): MirrorState => {
   const clampedLevel = Math.max(0, Math.min(level, state.maxLevel));
-  
+
   return {
     ...state,
     currentLevel: clampedLevel,
@@ -55,7 +55,7 @@ export const updateMirrorLevel = (
 
 /**
  * Gets current mirror level
- * 
+ *
  * @param state - Mirror state
  * @returns Current level
  */
@@ -65,7 +65,7 @@ export const getMirrorLevel = (state: MirrorState): number => {
 
 /**
  * Checks if mirrors are enabled
- * 
+ *
  * @param state - Mirror state
  * @returns True if enabled
  */
@@ -75,7 +75,7 @@ export const isMirrorEnabled = (state: MirrorState): boolean => {
 
 /**
  * Creates effect description for applying mirror state
- * 
+ *
  * @param state - Mirror state
  * @param mirrors - Array of mirror textures
  * @returns Effect description

@@ -34,13 +34,13 @@ const calculateCameraRotation = (rigRotation: Vector3): Vector3 => {
   return new Vector3(
     0, // No pitch
     rigRotation.y, // Same yaw as rig
-    0  // No roll
+    0 // No roll
   );
 };
 
 /**
  * Syncs camera transform with camera rig
- * 
+ *
  * @param rigPosition - Current rig position
  * @param rigRotation - Current rig rotation
  * @returns New camera transform
@@ -52,7 +52,7 @@ export const syncCameraWithRig = (
   // Calculate new position and rotation
   const position = calculateCameraPosition(rigPosition);
   const rotation = calculateCameraRotation(rigRotation);
-  
+
   return {
     position,
     rotation,

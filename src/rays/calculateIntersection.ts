@@ -17,7 +17,7 @@ export interface IntersectionResult {
 
 /**
  * Calculates the intersection of a ray with a wall plane
- * 
+ *
  * @param origin - Ray origin point
  * @param direction - Ray direction (normalized)
  * @param wallPlane - Wall plane to test against
@@ -34,10 +34,10 @@ export const calculateIntersection = (
     wallPlane.position,
     wallPlane.normal
   );
-  
+
   // Calculate intersection distance
   const distance = ray.intersectsPlane(plane);
-  
+
   if (distance === null || distance < 0.001) {
     // No intersection or too close (avoid self-intersection)
     return {
@@ -48,10 +48,10 @@ export const calculateIntersection = (
       isMirror: false,
     };
   }
-  
+
   // Calculate intersection point
   const point = ray.origin.add(ray.direction.scale(distance));
-  
+
   return {
     hit: true,
     distance,
@@ -63,7 +63,7 @@ export const calculateIntersection = (
 
 /**
  * Finds the nearest wall intersection from a set of wall planes
- * 
+ *
  * @param origin - Ray origin point
  * @param direction - Ray direction (normalized)
  * @param wallPlanes - Array of wall planes to test
@@ -81,21 +81,21 @@ export const findNearestIntersection = (
     normal: null,
     isMirror: false,
   };
-  
+
   for (const wallPlane of wallPlanes) {
     const result = calculateIntersection(origin, direction, wallPlane);
-    
+
     if (result.hit && result.distance < nearest.distance) {
       nearest = result;
     }
   }
-  
+
   return nearest;
 };
 
 /**
  * Calculates reflection direction using the law of reflection
- * 
+ *
  * @param incomingDirection - Incoming ray direction (normalized)
  * @param surfaceNormal - Surface normal at hit point (normalized)
  * @returns Reflected direction vector (normalized)

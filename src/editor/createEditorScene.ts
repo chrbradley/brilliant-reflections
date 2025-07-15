@@ -11,7 +11,7 @@ const createEngine = (canvas: HTMLCanvasElement): Engine => {
   if (!canvas) {
     throw new Error('Canvas element is required to create engine');
   }
-  
+
   return new Engine(canvas, true, {
     preserveDrawingBuffer: true,
     stencil: true,
@@ -23,10 +23,10 @@ const createEngine = (canvas: HTMLCanvasElement): Engine => {
  */
 const createScene = (engine: Engine): Scene => {
   const scene = new Scene(engine);
-  
+
   // Set background color for editor view
   scene.clearColor = new Color4(0.1, 0.1, 0.1, 1.0);
-  
+
   return scene;
 };
 
@@ -42,7 +42,7 @@ const createDisposer = (engine: Engine, scene: Scene): (() => void) => {
 
 /**
  * Creates and configures an editor scene with Babylon.js
- * 
+ *
  * @param canvas - The HTML canvas element to render to
  * @returns Immutable scene configuration with engine, scene, and dispose function
  */
@@ -50,7 +50,7 @@ export const createEditorScene = (canvas: HTMLCanvasElement): SceneConfig => {
   const engine = createEngine(canvas);
   const scene = createScene(engine);
   const dispose = createDisposer(engine, scene);
-  
+
   // Return immutable configuration
   return Object.freeze({
     engine,

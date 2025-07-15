@@ -26,11 +26,11 @@ describe('createOrthographicCamera', () => {
     expect(camera.position.x).toBeCloseTo(0);
     expect(camera.position.y).toBeCloseTo(20.5);
     expect(camera.position.z).toBeCloseTo(0);
-    
+
     expect(camera.target.x).toBeCloseTo(0);
     expect(camera.target.y).toBeCloseTo(0);
     expect(camera.target.z).toBeCloseTo(0);
-    
+
     sceneConfig.dispose();
   });
 
@@ -44,7 +44,7 @@ describe('createOrthographicCamera', () => {
     expect(camera.orthoRight).toBe(10);
     expect(camera.orthoTop).toBe(10);
     expect(camera.orthoBottom).toBe(-10);
-    
+
     sceneConfig.dispose();
   });
 
@@ -58,20 +58,20 @@ describe('createOrthographicCamera', () => {
     expect(camera.upVector.x).toBeCloseTo(0);
     expect(camera.upVector.y).toBeCloseTo(0);
     expect(camera.upVector.z).toBeCloseTo(1);
-    
+
     sceneConfig.dispose();
   });
 
   it('should be a pure function returning new instances', () => {
     const canvas = document.createElement('canvas');
     const sceneConfig = createEditorScene(canvas);
-    
+
     const camera1 = createOrthographicCamera('camera1', sceneConfig.scene);
     const camera2 = createOrthographicCamera('camera2', sceneConfig.scene);
 
     expect(camera1).not.toBe(camera2);
     expect(camera1.name).not.toBe(camera2.name);
-    
+
     sceneConfig.dispose();
   });
 
@@ -85,7 +85,7 @@ describe('createOrthographicCamera', () => {
     expect(camera).toHaveProperty('rotation');
     expect(camera).toHaveProperty('fov');
     expect(camera).toHaveProperty('mode');
-    
+
     sceneConfig.dispose();
   });
 });

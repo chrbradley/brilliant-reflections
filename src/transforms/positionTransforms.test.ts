@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { snapToGrid, clampPosition, applyPositionConstraints } from './positionTransforms';
+import {
+  snapToGrid,
+  clampPosition,
+  applyPositionConstraints,
+} from './positionTransforms';
 import { Vector3 } from 'babylonjs';
 
 describe('positionTransforms', () => {
@@ -39,7 +43,7 @@ describe('positionTransforms', () => {
     it('should clamp position within limits', () => {
       const position = new Vector3(10, 5, -12);
       const clamped = clampPosition(position, 8);
-      
+
       expect(clamped.x).toBe(8); // Clamped from 10
       expect(clamped.y).toBe(5); // Y unchanged
       expect(clamped.z).toBe(-8); // Clamped from -12
@@ -48,7 +52,7 @@ describe('positionTransforms', () => {
     it('should not modify position within limits', () => {
       const position = new Vector3(5, 3, -7);
       const clamped = clampPosition(position, 8);
-      
+
       expect(clamped.x).toBe(5);
       expect(clamped.y).toBe(3);
       expect(clamped.z).toBe(-7);
@@ -57,7 +61,7 @@ describe('positionTransforms', () => {
     it('should handle Y axis separately', () => {
       const position = new Vector3(0, 100, 0);
       const clamped = clampPosition(position, 8);
-      
+
       expect(clamped.x).toBe(0);
       expect(clamped.y).toBe(100); // Y not clamped
       expect(clamped.z).toBe(0);
@@ -66,7 +70,7 @@ describe('positionTransforms', () => {
     it('should return new Vector3 instance', () => {
       const position = new Vector3(5, 5, 5);
       const clamped = clampPosition(position, 10);
-      
+
       expect(clamped).not.toBe(position);
       expect(clamped).toBeInstanceOf(Vector3);
     });
@@ -74,7 +78,7 @@ describe('positionTransforms', () => {
     it('should handle zero limit', () => {
       const position = new Vector3(5, 3, -7);
       const clamped = clampPosition(position, 0);
-      
+
       expect(clamped.x).toBe(0);
       expect(clamped.y).toBe(3);
       expect(clamped.z).toBe(-0); // -7 clamped to [-0, 0] returns -0
@@ -85,7 +89,7 @@ describe('positionTransforms', () => {
     it('should apply both snap and clamp', () => {
       const position = new Vector3(5.7, 2.3, -9.1);
       const constrained = applyPositionConstraints(position);
-      
+
       // Should snap to grid (1 unit) first
       expect(constrained.x).toBe(6); // 5.7 -> 6
       expect(constrained.y).toBe(2.3); // Y unchanged
@@ -95,7 +99,7 @@ describe('positionTransforms', () => {
     it('should use default grid size of 1', () => {
       const position = new Vector3(1.4, 0, 2.6);
       const constrained = applyPositionConstraints(position);
-      
+
       expect(constrained.x).toBe(1); // Snapped to 1
       expect(constrained.z).toBe(3); // Snapped to 3
     });
@@ -103,7 +107,7 @@ describe('positionTransforms', () => {
     it('should use default limit of 8', () => {
       const position = new Vector3(10, 0, -10);
       const constrained = applyPositionConstraints(position);
-      
+
       expect(constrained.x).toBe(8); // Clamped
       expect(constrained.z).toBe(-8); // Clamped
     });
@@ -111,7 +115,7 @@ describe('positionTransforms', () => {
     it('should accept custom grid size and limit', () => {
       const position = new Vector3(5.3, 0, 7.8);
       const constrained = applyPositionConstraints(position, 0.5, 6);
-      
+
       expect(constrained.x).toBe(5.5); // Snapped to 0.5 grid
       expect(constrained.z).toBe(6); // 7.8 -> 8 -> 6 (clamped)
     });
@@ -120,7 +124,7 @@ describe('positionTransforms', () => {
       const position = new Vector3(3.7, 1, -4.2);
       const result1 = applyPositionConstraints(position);
       const result2 = applyPositionConstraints(position);
-      
+
       expect(result1).not.toBe(position);
       expect(result1.equals(result2)).toBe(true);
     });
@@ -128,7 +132,7 @@ describe('positionTransforms', () => {
     it('should handle edge case at limit boundary', () => {
       const position = new Vector3(7.9, 0, -7.9);
       const constrained = applyPositionConstraints(position);
-      
+
       expect(constrained.x).toBe(8); // Snapped to 8 (at limit)
       expect(constrained.z).toBe(-8); // Snapped to -8 (at limit)
     });

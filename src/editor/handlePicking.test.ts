@@ -14,12 +14,12 @@ describe('handlePicking', () => {
       const canvas = document.createElement('canvas');
       const sceneConfig = createEditorScene(canvas);
       const onPick = vi.fn();
-      
+
       const handler = createPickHandler(sceneConfig.scene, onPick);
-      
+
       expect(handler).toBeDefined();
       expect(typeof handler).toBe('function');
-      
+
       sceneConfig.dispose();
     });
 
@@ -27,13 +27,13 @@ describe('handlePicking', () => {
       const canvas = document.createElement('canvas');
       const sceneConfig = createEditorScene(canvas);
       const onPick = vi.fn();
-      
+
       // Create a pickable mesh
       const mesh = new Mesh('testMesh', sceneConfig.scene);
       mesh.isPickable = true;
-      
+
       const handler = createPickHandler(sceneConfig.scene, onPick);
-      
+
       // Simulate pointer event
       const pointerInfo = {
         type: PointerEventTypes.POINTERPICK,
@@ -42,11 +42,11 @@ describe('handlePicking', () => {
           pickedMesh: mesh,
         },
       };
-      
+
       handler(pointerInfo as any);
-      
+
       expect(onPick).toHaveBeenCalledWith('testMesh');
-      
+
       sceneConfig.dispose();
     });
 
@@ -54,9 +54,9 @@ describe('handlePicking', () => {
       const canvas = document.createElement('canvas');
       const sceneConfig = createEditorScene(canvas);
       const onPick = vi.fn();
-      
+
       const handler = createPickHandler(sceneConfig.scene, onPick);
-      
+
       // Simulate pointer event with no hit
       const pointerInfo = {
         type: PointerEventTypes.POINTERPICK,
@@ -65,11 +65,11 @@ describe('handlePicking', () => {
           pickedMesh: null,
         },
       };
-      
+
       handler(pointerInfo as any);
-      
+
       expect(onPick).not.toHaveBeenCalled();
-      
+
       sceneConfig.dispose();
     });
 
@@ -77,9 +77,9 @@ describe('handlePicking', () => {
       const canvas = document.createElement('canvas');
       const sceneConfig = createEditorScene(canvas);
       const onPick = vi.fn();
-      
+
       const handler = createPickHandler(sceneConfig.scene, onPick, true);
-      
+
       // Simulate pointer event with no hit
       const pointerInfo = {
         type: PointerEventTypes.POINTERPICK,
@@ -88,11 +88,11 @@ describe('handlePicking', () => {
           pickedMesh: null,
         },
       };
-      
+
       handler(pointerInfo as any);
-      
+
       expect(onPick).toHaveBeenCalledWith(null);
-      
+
       sceneConfig.dispose();
     });
 
@@ -100,13 +100,13 @@ describe('handlePicking', () => {
       const canvas = document.createElement('canvas');
       const sceneConfig = createEditorScene(canvas);
       const onPick = vi.fn();
-      
+
       // Create a non-pickable mesh
       const mesh = new Mesh('testMesh', sceneConfig.scene);
       mesh.isPickable = false;
-      
+
       const handler = createPickHandler(sceneConfig.scene, onPick);
-      
+
       // Simulate pointer event
       const pointerInfo = {
         type: PointerEventTypes.POINTERPICK,
@@ -115,11 +115,11 @@ describe('handlePicking', () => {
           pickedMesh: mesh,
         },
       };
-      
+
       handler(pointerInfo as any);
-      
+
       expect(onPick).not.toHaveBeenCalled();
-      
+
       sceneConfig.dispose();
     });
 
@@ -127,12 +127,12 @@ describe('handlePicking', () => {
       const canvas = document.createElement('canvas');
       const sceneConfig = createEditorScene(canvas);
       const onPick = vi.fn();
-      
+
       const mesh = new Mesh('testMesh', sceneConfig.scene);
       mesh.isPickable = true;
-      
+
       const handler = createPickHandler(sceneConfig.scene, onPick);
-      
+
       // Try other event types
       const moveEvent = {
         type: PointerEventTypes.POINTERMOVE,
@@ -141,11 +141,11 @@ describe('handlePicking', () => {
           pickedMesh: mesh,
         },
       };
-      
+
       handler(moveEvent as any);
-      
+
       expect(onPick).not.toHaveBeenCalled();
-      
+
       sceneConfig.dispose();
     });
 
@@ -153,13 +153,13 @@ describe('handlePicking', () => {
       const canvas = document.createElement('canvas');
       const sceneConfig = createEditorScene(canvas);
       const onPick = vi.fn();
-      
+
       // Create a mesh without name
       const mesh = new Mesh('', sceneConfig.scene);
       mesh.isPickable = true;
-      
+
       const handler = createPickHandler(sceneConfig.scene, onPick);
-      
+
       const pointerInfo = {
         type: PointerEventTypes.POINTERPICK,
         pickInfo: {
@@ -167,11 +167,11 @@ describe('handlePicking', () => {
           pickedMesh: mesh,
         },
       };
-      
+
       handler(pointerInfo as any);
-      
+
       expect(onPick).toHaveBeenCalledWith('');
-      
+
       sceneConfig.dispose();
     });
   });

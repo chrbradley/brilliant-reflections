@@ -20,9 +20,9 @@ describe('createControls', () => {
       existing.id = 'testSlider';
       existing.type = 'range';
       document.body.appendChild(existing);
-      
+
       const config = createSlider('testSlider', 0, 10, 5);
-      
+
       expect(config.element).toBe(existing);
       expect(config.min).toBe(0);
       expect(config.max).toBe(10);
@@ -40,9 +40,9 @@ describe('createControls', () => {
       slider.id = 'testSlider';
       slider.type = 'range';
       document.body.appendChild(slider);
-      
+
       createSlider('testSlider', 1, 8, 4);
-      
+
       expect(slider.min).toBe('1');
       expect(slider.max).toBe('8');
       expect(slider.value).toBe('4');
@@ -53,9 +53,9 @@ describe('createControls', () => {
       slider.id = 'testSlider';
       slider.type = 'range';
       document.body.appendChild(slider);
-      
+
       const config = createSlider('testSlider', 0, 10, 5);
-      
+
       expect(() => {
         (config as any).value = 10;
       }).toThrow();
@@ -74,9 +74,9 @@ describe('createControls', () => {
       select.appendChild(option1);
       select.appendChild(option2);
       document.body.appendChild(select);
-      
+
       const config = createDropdown('testSelect', ['low', 'high'], 'high');
-      
+
       expect(config.element).toBe(select);
       expect(config.options).toEqual(['low', 'high']);
       expect(config.value).toBe('high');
@@ -92,9 +92,9 @@ describe('createControls', () => {
       select.appendChild(option1);
       select.appendChild(option2);
       document.body.appendChild(select);
-      
+
       createDropdown('testSelect', ['a', 'b'], 'b');
-      
+
       expect(select.value).toBe('b');
     });
   });
@@ -105,9 +105,9 @@ describe('createControls', () => {
       button.id = 'testButton';
       button.textContent = 'Click Me';
       document.body.appendChild(button);
-      
+
       const config = createButton('testButton', 'Click Me');
-      
+
       expect(config.element).toBe(button);
       expect(config.text).toBe('Click Me');
     });
@@ -116,9 +116,9 @@ describe('createControls', () => {
       const button = document.createElement('button');
       button.id = 'testButton';
       document.body.appendChild(button);
-      
+
       createButton('testButton', 'Reset');
-      
+
       expect(button.textContent).toBe('Reset');
     });
   });
@@ -129,12 +129,12 @@ describe('createControls', () => {
       slider.id = 'testSlider';
       slider.type = 'range';
       document.body.appendChild(slider);
-      
+
       const config = createSlider('testSlider', 0, 10, 5);
       // Change the value after creating the config
       slider.value = '7';
       const value = getSliderValue(config);
-      
+
       expect(value).toBe(7);
       expect(typeof value).toBe('number');
     });
@@ -151,12 +151,12 @@ describe('createControls', () => {
       select.appendChild(option1);
       select.appendChild(option2);
       document.body.appendChild(select);
-      
+
       const config = createDropdown('testSelect', ['low', 'high'], 'low');
       // Change the value after creating the config
       select.value = 'high';
       const value = getDropdownValue(config);
-      
+
       expect(value).toBe('high');
     });
   });
@@ -167,16 +167,16 @@ describe('createControls', () => {
       slider.id = 'testSlider';
       slider.type = 'range';
       document.body.appendChild(slider);
-      
+
       const display = document.createElement('span');
       display.id = 'testValue';
       document.body.appendChild(display);
-      
+
       const config = createSlider('testSlider', 0, 10, 5);
       // Change the value after creating the config
       slider.value = '3';
       updateSliderDisplay(config, 'testValue');
-      
+
       expect(display.textContent).toBe('3');
     });
 
@@ -185,9 +185,9 @@ describe('createControls', () => {
       slider.id = 'testSlider';
       slider.type = 'range';
       document.body.appendChild(slider);
-      
+
       const config = createSlider('testSlider', 0, 10, 5);
-      
+
       // Should not throw
       expect(() => updateSliderDisplay(config, 'nonExistent')).not.toThrow();
     });

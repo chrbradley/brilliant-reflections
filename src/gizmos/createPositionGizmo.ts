@@ -25,7 +25,7 @@ export interface PositionGizmoConfig {
 
 /**
  * Creates a position gizmo with constraints using GizmoManager
- * 
+ *
  * @param scene - The scene to create gizmo in
  * @param mesh - The mesh to attach gizmo to
  * @param gridSize - Grid snap size (default 1)
@@ -44,25 +44,25 @@ export const createPositionGizmo = (
     gizmoManager = new GizmoManager(scene);
     scene.gizmoManager = gizmoManager;
   }
-  
+
   // Enable position gizmo
   gizmoManager.positionGizmoEnabled = true;
-  
+
   // Configure gizmo settings
   if (gizmoManager.gizmos.positionGizmo) {
     const posGizmo = gizmoManager.gizmos.positionGizmo;
     posGizmo.snapDistance = gridSize; // Grid snapping
     posGizmo.updateGizmoRotationToMatchAttachedMesh = false; // World-aligned
-    
+
     // Disable Y axis movement
     if (posGizmo.yGizmo) {
       posGizmo.yGizmo.isEnabled = false;
     }
   }
-  
+
   // Attach to mesh
   gizmoManager.attachToMesh(mesh);
-  
+
   // Create constraint callback
   const updateCallback = (): void => {
     if (mesh.position) {
@@ -74,12 +74,12 @@ export const createPositionGizmo = (
       mesh.position.copyFrom(constrained);
     }
   };
-  
+
   // Apply constraints on drag (after gizmo is ready)
   setTimeout(() => {
     if (gizmoManager.gizmos.positionGizmo) {
       const posGizmo = gizmoManager.gizmos.positionGizmo;
-      
+
       // Add constraints to X and Z gizmos
       if (posGizmo.xGizmo?.dragBehavior?.onDragObservable) {
         posGizmo.xGizmo.dragBehavior.onDragObservable.add(updateCallback);
@@ -89,7 +89,7 @@ export const createPositionGizmo = (
       }
     }
   }, 0);
-  
+
   // Return configuration
   return {
     gizmoManager,

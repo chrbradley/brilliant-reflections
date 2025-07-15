@@ -28,7 +28,7 @@ export const createInitialSelectionState = (): SelectionState => {
 
 /**
  * Selects an object, returning new state
- * 
+ *
  * @param state - Current selection state
  * @param objectId - ID of object to select
  * @returns New selection state
@@ -51,19 +51,17 @@ export const selectObject = (
 
 /**
  * Clears selection, returning new state
- * 
+ *
  * @param state - Current selection state
  * @returns New empty selection state
  */
-export const clearSelection = (
-  state: SelectionState
-): SelectionState => {
+export const clearSelection = (state: SelectionState): SelectionState => {
   return createInitialSelectionState();
 };
 
 /**
  * Checks if an object is selected
- * 
+ *
  * @param state - Current selection state
  * @param objectId - ID of object to check
  * @returns True if object is selected
@@ -75,6 +73,6 @@ export const isSelected = (
   if (!objectId || !state.selectedObjectId) {
     return false;
   }
-  
+
   return state.selectedObjectId === objectId;
 };

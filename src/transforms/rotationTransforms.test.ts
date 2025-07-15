@@ -5,7 +5,7 @@ import {
   snapToAngle,
   normalizeAngle,
   clampToYAxis,
-  applyRotationConstraints
+  applyRotationConstraints,
 } from './rotationTransforms';
 import { Vector3 } from 'babylonjs';
 
@@ -55,19 +55,33 @@ describe('rotationTransforms', () => {
   describe('snapToAngle', () => {
     it('should snap to 15-degree increments by default', () => {
       expect(radiansToDegrees(snapToAngle(degreesToRadians(7)))).toBeCloseTo(0);
-      expect(radiansToDegrees(snapToAngle(degreesToRadians(8)))).toBeCloseTo(15);
-      expect(radiansToDegrees(snapToAngle(degreesToRadians(22)))).toBeCloseTo(15);
-      expect(radiansToDegrees(snapToAngle(degreesToRadians(23)))).toBeCloseTo(30);
+      expect(radiansToDegrees(snapToAngle(degreesToRadians(8)))).toBeCloseTo(
+        15
+      );
+      expect(radiansToDegrees(snapToAngle(degreesToRadians(22)))).toBeCloseTo(
+        15
+      );
+      expect(radiansToDegrees(snapToAngle(degreesToRadians(23)))).toBeCloseTo(
+        30
+      );
     });
 
     it('should handle custom snap increments', () => {
-      expect(radiansToDegrees(snapToAngle(degreesToRadians(7), 10))).toBeCloseTo(10);
-      expect(radiansToDegrees(snapToAngle(degreesToRadians(17), 5))).toBeCloseTo(15);
+      expect(
+        radiansToDegrees(snapToAngle(degreesToRadians(7), 10))
+      ).toBeCloseTo(10);
+      expect(
+        radiansToDegrees(snapToAngle(degreesToRadians(17), 5))
+      ).toBeCloseTo(15);
     });
 
     it('should handle negative angles', () => {
-      expect(radiansToDegrees(snapToAngle(degreesToRadians(-7)))).toBeCloseTo(0);
-      expect(radiansToDegrees(snapToAngle(degreesToRadians(-8)))).toBeCloseTo(-15);
+      expect(radiansToDegrees(snapToAngle(degreesToRadians(-7)))).toBeCloseTo(
+        0
+      );
+      expect(radiansToDegrees(snapToAngle(degreesToRadians(-8)))).toBeCloseTo(
+        -15
+      );
     });
 
     it('should return original angle when snap is 0', () => {
@@ -115,7 +129,7 @@ describe('rotationTransforms', () => {
     it('should preserve Y rotation and zero X and Z', () => {
       const rotation = new Vector3(0.5, 1.2, -0.8);
       const clamped = clampToYAxis(rotation);
-      
+
       expect(clamped.x).toBe(0);
       expect(clamped.y).toBe(1.2);
       expect(clamped.z).toBe(0);
@@ -124,7 +138,7 @@ describe('rotationTransforms', () => {
     it('should return new Vector3 instance', () => {
       const rotation = new Vector3(1, 2, 3);
       const clamped = clampToYAxis(rotation);
-      
+
       expect(clamped).not.toBe(rotation);
       expect(clamped).toBeInstanceOf(Vector3);
     });
@@ -132,7 +146,7 @@ describe('rotationTransforms', () => {
     it('should handle zero rotation', () => {
       const rotation = new Vector3(0, 0, 0);
       const clamped = clampToYAxis(rotation);
-      
+
       expect(clamped.x).toBe(0);
       expect(clamped.y).toBe(0);
       expect(clamped.z).toBe(0);
@@ -142,7 +156,7 @@ describe('rotationTransforms', () => {
       const rotation = new Vector3(1, 2, 3);
       const result1 = clampToYAxis(rotation);
       const result2 = clampToYAxis(rotation);
-      
+
       expect(result1.equals(result2)).toBe(true);
       expect(rotation.x).toBe(1); // Original unchanged
     });
@@ -152,7 +166,7 @@ describe('rotationTransforms', () => {
     it('should apply Y-axis clamping, snapping, and normalization', () => {
       const rotation = new Vector3(0.5, degreesToRadians(37), -0.3);
       const constrained = applyRotationConstraints(rotation);
-      
+
       expect(constrained.x).toBe(0);
       expect(constrained.z).toBe(0);
       expect(radiansToDegrees(constrained.y)).toBeCloseTo(30); // 37 -> 30 (15° snap)
@@ -161,21 +175,21 @@ describe('rotationTransforms', () => {
     it('should use default 15-degree snapping', () => {
       const rotation = new Vector3(0, degreesToRadians(22), 0);
       const constrained = applyRotationConstraints(rotation);
-      
+
       expect(radiansToDegrees(constrained.y)).toBeCloseTo(15);
     });
 
     it('should accept custom snap increment', () => {
       const rotation = new Vector3(0, degreesToRadians(22), 0);
       const constrained = applyRotationConstraints(rotation, 10);
-      
+
       expect(radiansToDegrees(constrained.y)).toBeCloseTo(20);
     });
 
     it('should normalize large angles', () => {
       const rotation = new Vector3(0, 5 * Math.PI, 0); // 900 degrees
       const constrained = applyRotationConstraints(rotation);
-      
+
       // 900° -> 180° (normalized) -> 180° (snapped to 15° grid)
       expect(radiansToDegrees(constrained.y)).toBeCloseTo(180);
     });
@@ -183,7 +197,7 @@ describe('rotationTransforms', () => {
     it('should handle negative angles', () => {
       const rotation = new Vector3(0, degreesToRadians(-37), 0);
       const constrained = applyRotationConstraints(rotation);
-      
+
       expect(radiansToDegrees(constrained.y)).toBeCloseTo(-30);
     });
 
@@ -191,7 +205,7 @@ describe('rotationTransforms', () => {
       const rotation = new Vector3(1, degreesToRadians(52), -1);
       const result1 = applyRotationConstraints(rotation);
       const result2 = applyRotationConstraints(rotation);
-      
+
       expect(result1).not.toBe(rotation);
       expect(result1.equals(result2)).toBe(true);
     });
@@ -199,7 +213,7 @@ describe('rotationTransforms', () => {
     it('should handle edge case at ±180 degrees', () => {
       const rotation = new Vector3(0, Math.PI, 0); // 180°
       const constrained = applyRotationConstraints(rotation);
-      
+
       expect(radiansToDegrees(constrained.y)).toBeCloseTo(180);
     });
   });

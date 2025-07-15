@@ -31,13 +31,17 @@ describe('Application initialization', () => {
   });
 
   it('should maintain aspect ratio of 1:1 for canvases', () => {
-    const editorCanvas = document.getElementById('editorCanvas') as HTMLCanvasElement;
-    const renderCanvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
-    
+    const editorCanvas = document.getElementById(
+      'editorCanvas'
+    ) as HTMLCanvasElement;
+    const renderCanvas = document.getElementById(
+      'renderCanvas'
+    ) as HTMLCanvasElement;
+
     // Set CSS to maintain aspect ratio
     editorCanvas.style.aspectRatio = '1 / 1';
     renderCanvas.style.aspectRatio = '1 / 1';
-    
+
     expect(editorCanvas.style.aspectRatio).toBe('1 / 1');
     expect(renderCanvas.style.aspectRatio).toBe('1 / 1');
   });

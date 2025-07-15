@@ -31,21 +31,24 @@ const createColor3 = (color: MaterialColor): Color3 => {
 /**
  * Configures material for matte appearance
  */
-const configureMatteSurface = (material: StandardMaterial, color: MaterialColor): void => {
+const configureMatteSurface = (
+  material: StandardMaterial,
+  color: MaterialColor
+): void => {
   // Set diffuse color
   material.diffuseColor = createColor3(color);
-  
+
   // Make it matte by reducing specular reflection
   material.specularColor = new Color3(0.05, 0.05, 0.05);
   material.specularPower = 1;
-  
+
   // Ensure material is opaque
   material.alpha = 1;
 };
 
 /**
  * Creates a matte material with specified color
- * 
+ *
  * @param name - The name for the material
  * @param scene - The scene to add the material to
  * @param color - Optional color configuration (defaults to gray)
@@ -57,8 +60,8 @@ export const createMatteMaterial = (
   color: MaterialColor = DEFAULT_MATTE_COLOR
 ): StandardMaterial => {
   const material = new StandardMaterial(name, scene);
-  
+
   configureMatteSurface(material, color);
-  
+
   return material;
 };

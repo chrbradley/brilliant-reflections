@@ -10,7 +10,7 @@ describe('createEditorScene', () => {
   beforeEach(() => {
     // Setup WebGL mock
     setupCanvasMock();
-    
+
     // Create a test canvas
     canvas = document.createElement('canvas');
     canvas.id = 'test-editor-canvas';
@@ -28,7 +28,7 @@ describe('createEditorScene', () => {
 
   it('should create a scene configuration with engine and scene', () => {
     sceneConfig = createEditorScene(canvas);
-    
+
     expect(sceneConfig).toBeDefined();
     expect(sceneConfig.engine).toBeDefined();
     expect(sceneConfig.scene).toBeDefined();
@@ -38,7 +38,7 @@ describe('createEditorScene', () => {
 
   it('should bind the engine to the provided canvas', () => {
     sceneConfig = createEditorScene(canvas);
-    
+
     const engineCanvas = sceneConfig.engine.getRenderingCanvas();
     expect(engineCanvas).toBe(canvas);
   });
@@ -47,13 +47,13 @@ describe('createEditorScene', () => {
     sceneConfig = createEditorScene(canvas);
     const engine = sceneConfig.engine;
     const scene = sceneConfig.scene;
-    
+
     // Spy on dispose methods
     const engineDisposeSpy = vi.spyOn(engine, 'dispose');
     const sceneDisposeSpy = vi.spyOn(scene, 'dispose');
-    
+
     sceneConfig.dispose();
-    
+
     expect(engineDisposeSpy).toHaveBeenCalled();
     expect(sceneDisposeSpy).toHaveBeenCalled();
   });
@@ -66,13 +66,13 @@ describe('createEditorScene', () => {
     sceneConfig = createEditorScene(canvas);
     const originalEngine = sceneConfig.engine;
     const originalScene = sceneConfig.scene;
-    
+
     // Attempt to modify (TypeScript will prevent this at compile time)
     // This test verifies runtime immutability
     expect(() => {
       (sceneConfig as any).engine = null;
     }).toThrow();
-    
+
     expect(sceneConfig.engine).toBe(originalEngine);
     expect(sceneConfig.scene).toBe(originalScene);
   });
@@ -80,11 +80,11 @@ describe('createEditorScene', () => {
   it('should be a pure function returning new instances', () => {
     const config1 = createEditorScene(canvas);
     const config2 = createEditorScene(canvas);
-    
+
     expect(config1).not.toBe(config2);
     expect(config1.engine).not.toBe(config2.engine);
     expect(config1.scene).not.toBe(config2.scene);
-    
+
     // Clean up both
     config1.dispose();
     config2.dispose();

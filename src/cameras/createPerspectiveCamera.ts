@@ -30,7 +30,7 @@ const degreesToRadians = (degrees: number): number => {
 const configurePerspectiveSettings = (camera: UniversalCamera): void => {
   // Set FOV to approximately 60 degrees
   camera.fov = degreesToRadians(60);
-  
+
   // Set reasonable clipping planes for our room scene
   camera.minZ = 0.1;
   camera.maxZ = 100;
@@ -38,7 +38,7 @@ const configurePerspectiveSettings = (camera: UniversalCamera): void => {
 
 /**
  * Creates and configures a perspective camera for the render view
- * 
+ *
  * @param name - The name for the camera
  * @param scene - The scene to add the camera to
  * @returns Configured perspective camera
@@ -49,15 +49,15 @@ export const createPerspectiveCamera = (
 ): UniversalCamera => {
   const position = createCameraPosition();
   const target = createCameraTarget();
-  
+
   // Create camera
   const camera = new UniversalCamera(name, position, scene);
-  
+
   // Set target
   camera.setTarget(target);
-  
+
   // Configure perspective settings
   configurePerspectiveSettings(camera);
-  
+
   return camera;
 };

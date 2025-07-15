@@ -22,15 +22,12 @@ export const createInitialRayState = (): RayState => ({
 
 /**
  * Updates ray count in state
- * 
+ *
  * @param state - Current ray state
  * @param count - New ray count (0-8)
  * @returns New state with updated count
  */
-export const updateRayCount = (
-  state: RayState,
-  count: number
-): RayState => ({
+export const updateRayCount = (state: RayState, count: number): RayState => ({
   ...state,
   config: {
     ...state.config,
@@ -40,7 +37,7 @@ export const updateRayCount = (
 
 /**
  * Updates max bounces in state
- * 
+ *
  * @param state - Current ray state
  * @param maxBounces - New max bounces (1-5)
  * @returns New state with updated bounces

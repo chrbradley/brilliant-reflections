@@ -15,7 +15,7 @@ export interface MirrorConfig {
 
 /**
  * Calculates the reflection plane for a wall
- * 
+ *
  * @param position - Wall position
  * @param normal - Wall normal vector (pointing inward)
  * @returns Reflection plane
@@ -32,7 +32,7 @@ export const calculateReflectionPlane = (
 
 /**
  * Creates mirror configuration for a wall
- * 
+ *
  * @param wallName - Name of the wall mesh
  * @param position - Wall position
  * @param normal - Wall normal vector
@@ -46,7 +46,7 @@ export const createMirrorConfig = (
   scene: Scene
 ): MirrorConfig => {
   const reflectionPlane = calculateReflectionPlane(position, normal);
-  
+
   return {
     name: `${wallName}_mirror`,
     textureSize: 512, // Balance quality vs performance

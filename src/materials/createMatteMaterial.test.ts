@@ -15,7 +15,7 @@ describe('createMatteMaterial', () => {
 
     expect(material).toBeDefined();
     expect(material.name).toBe('testMaterial');
-    
+
     sceneConfig.dispose();
   });
 
@@ -28,7 +28,7 @@ describe('createMatteMaterial', () => {
     expect(material.specularColor.r).toBeLessThanOrEqual(0.1);
     expect(material.specularColor.g).toBeLessThanOrEqual(0.1);
     expect(material.specularColor.b).toBeLessThanOrEqual(0.1);
-    
+
     sceneConfig.dispose();
   });
 
@@ -42,7 +42,7 @@ describe('createMatteMaterial', () => {
     expect(material.diffuseColor.r).toBeLessThan(1);
     expect(material.diffuseColor.r).toBeCloseTo(material.diffuseColor.g);
     expect(material.diffuseColor.g).toBeCloseTo(material.diffuseColor.b);
-    
+
     sceneConfig.dispose();
   });
 
@@ -50,25 +50,29 @@ describe('createMatteMaterial', () => {
     const canvas = document.createElement('canvas');
     const sceneConfig = createEditorScene(canvas);
     const customColor = { r: 0.8, g: 0.2, b: 0.2 };
-    const material = createMatteMaterial('redMaterial', sceneConfig.scene, customColor);
+    const material = createMatteMaterial(
+      'redMaterial',
+      sceneConfig.scene,
+      customColor
+    );
 
     expect(material.diffuseColor.r).toBeCloseTo(customColor.r);
     expect(material.diffuseColor.g).toBeCloseTo(customColor.g);
     expect(material.diffuseColor.b).toBeCloseTo(customColor.b);
-    
+
     sceneConfig.dispose();
   });
 
   it('should be a pure function returning new instances', () => {
     const canvas = document.createElement('canvas');
     const sceneConfig = createEditorScene(canvas);
-    
+
     const material1 = createMatteMaterial('mat1', sceneConfig.scene);
     const material2 = createMatteMaterial('mat2', sceneConfig.scene);
 
     expect(material1).not.toBe(material2);
     expect(material1.name).not.toBe(material2.name);
-    
+
     sceneConfig.dispose();
   });
 });

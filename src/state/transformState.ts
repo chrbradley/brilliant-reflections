@@ -35,7 +35,7 @@ export const createInitialTransformState = (): TransformState => {
 
 /**
  * Updates object position in state
- * 
+ *
  * @param state - Current transform state
  * @param objectId - ID of object to update
  * @param position - New position vector
@@ -47,7 +47,7 @@ export const updateObjectPosition = (
   position: Vector3
 ): TransformState => {
   const currentTransform = state.transforms[objectId];
-  
+
   const newTransform: ObjectTransform = {
     position: position.clone(),
     rotation: currentTransform?.rotation.clone() || Vector3.Zero(),
@@ -69,7 +69,7 @@ export const updateObjectPosition = (
 
 /**
  * Updates object rotation in state
- * 
+ *
  * @param state - Current transform state
  * @param objectId - ID of object to update
  * @param rotation - New rotation vector
@@ -81,7 +81,7 @@ export const updateObjectRotation = (
   rotation: Vector3
 ): TransformState => {
   const currentTransform = state.transforms[objectId];
-  
+
   const newTransform: ObjectTransform = {
     position: currentTransform?.position.clone() || Vector3.Zero(),
     rotation: rotation.clone(),
@@ -103,7 +103,7 @@ export const updateObjectRotation = (
 
 /**
  * Gets transform for an object
- * 
+ *
  * @param state - Current transform state
  * @param objectId - ID of object to get
  * @returns Object transform or null if not found
@@ -113,7 +113,7 @@ export const getObjectTransform = (
   objectId: string
 ): ObjectTransform | null => {
   const transform = state.transforms[objectId];
-  
+
   if (!transform) {
     return null;
   }
@@ -127,12 +127,10 @@ export const getObjectTransform = (
 
 /**
  * Clears all transforms from state
- * 
+ *
  * @param state - Current transform state
  * @returns New empty transform state
  */
-export const clearTransforms = (
-  state: TransformState
-): TransformState => {
+export const clearTransforms = (state: TransformState): TransformState => {
   return createInitialTransformState();
 };

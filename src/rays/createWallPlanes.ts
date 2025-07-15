@@ -8,7 +8,7 @@ import { ROOM_HALF } from '../constants';
 /**
  * Creates wall planes for the room
  * North and East walls are mirrors
- * 
+ *
  * @returns Array of wall planes with position, normal, and mirror flag
  */
 export const createWallPlanes = (): WallPlane[] => {
@@ -31,7 +31,7 @@ export const createWallPlanes = (): WallPlane[] => {
       normal: new Vector3(-1, 0, 0),
       isMirror: true,
     },
-    // West wall (-X) - Mirror  
+    // West wall (-X) - Mirror
     {
       position: new Vector3(-ROOM_HALF, 0, 0),
       normal: new Vector3(1, 0, 0),

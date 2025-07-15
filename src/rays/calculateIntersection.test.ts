@@ -16,9 +16,9 @@ describe('calculateIntersection', () => {
       normal: new Vector3(0, 0, -1),
       isMirror: true,
     };
-    
+
     const result = calculateIntersection(origin, direction, wall);
-    
+
     expect(result.hit).toBe(true);
     expect(result.distance).toBeCloseTo(5);
     expect(result.point?.z).toBeCloseTo(5);
@@ -33,9 +33,9 @@ describe('calculateIntersection', () => {
       normal: new Vector3(0, 0, -1),
       isMirror: true,
     };
-    
+
     const result = calculateIntersection(origin, direction, wall);
-    
+
     expect(result.hit).toBe(false);
     expect(result.distance).toBe(Infinity);
     expect(result.point).toBeNull();
@@ -49,9 +49,9 @@ describe('calculateIntersection', () => {
       normal: new Vector3(0, 0, -1),
       isMirror: true,
     };
-    
+
     const result = calculateIntersection(origin, direction, wall);
-    
+
     // Should ignore intersection less than 0.001 units away
     expect(result.hit).toBe(false);
   });
@@ -64,9 +64,9 @@ describe('calculateIntersection', () => {
       normal: new Vector3(-1, 0, 0),
       isMirror: false,
     };
-    
+
     const result = calculateIntersection(origin, direction, wall);
-    
+
     expect(result.normal?.x).toBe(-1);
     expect(result.normal?.y).toBe(0);
     expect(result.normal?.z).toBe(0);
@@ -89,9 +89,9 @@ describe('findNearestIntersection', () => {
         isMirror: false,
       },
     ];
-    
+
     const result = findNearestIntersection(origin, direction, walls);
-    
+
     expect(result.hit).toBe(true);
     expect(result.distance).toBeCloseTo(5);
     expect(result.isMirror).toBe(false); // Should hit the nearer wall
@@ -107,9 +107,9 @@ describe('findNearestIntersection', () => {
         isMirror: true,
       },
     ];
-    
+
     const result = findNearestIntersection(origin, direction, walls);
-    
+
     expect(result.hit).toBe(false);
     expect(result.distance).toBe(Infinity);
   });
@@ -129,9 +129,9 @@ describe('findNearestIntersection', () => {
         isMirror: true,
       },
     ];
-    
+
     const result = findNearestIntersection(origin, direction, walls);
-    
+
     expect(result.hit).toBe(true);
     // Both walls are at same distance for 45-degree angle
     expect(result.distance).toBeCloseTo(10 * Math.sqrt(2));
@@ -142,9 +142,9 @@ describe('calculateReflection', () => {
   it('should reflect off a perpendicular surface', () => {
     const incoming = new Vector3(1, 0, 0); // Hitting wall head-on
     const normal = new Vector3(-1, 0, 0); // Wall facing left
-    
+
     const reflected = calculateReflection(incoming, normal);
-    
+
     // Should bounce straight back
     expect(reflected.x).toBeCloseTo(-1);
     expect(reflected.y).toBeCloseTo(0);
@@ -154,9 +154,9 @@ describe('calculateReflection', () => {
   it('should reflect at correct angle', () => {
     const incoming = new Vector3(1, 0, 1).normalize(); // 45 degree
     const normal = new Vector3(-1, 0, 0); // Wall facing left
-    
+
     const reflected = calculateReflection(incoming, normal);
-    
+
     // Should reflect symmetrically
     expect(reflected.x).toBeCloseTo(-1 / Math.sqrt(2));
     expect(reflected.y).toBeCloseTo(0);
@@ -166,9 +166,9 @@ describe('calculateReflection', () => {
   it('should handle glancing angles', () => {
     const incoming = new Vector3(0.1, 0, 0.99).normalize();
     const normal = new Vector3(-1, 0, 0);
-    
+
     const reflected = calculateReflection(incoming, normal);
-    
+
     // Should mostly continue in Z direction
     expect(Math.abs(reflected.z)).toBeGreaterThan(0.9);
     expect(reflected.x).toBeLessThan(0);
@@ -177,10 +177,10 @@ describe('calculateReflection', () => {
   it('should return normalized vectors', () => {
     const incoming = new Vector3(3, 0, 4); // Length 5
     const normal = new Vector3(-1, 0, 0);
-    
+
     const reflected = calculateReflection(incoming, normal);
     const length = reflected.length();
-    
+
     expect(length).toBeCloseTo(1);
   });
 });

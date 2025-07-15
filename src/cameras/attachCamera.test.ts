@@ -18,7 +18,7 @@ describe('attachCamera', () => {
 
     expect(sceneConfig.scene.activeCamera).toBe(camera);
     expect(camera.attachControl).toBeDefined();
-    
+
     sceneConfig.dispose();
   });
 
@@ -27,7 +27,7 @@ describe('attachCamera', () => {
     // Set canvas dimensions
     Object.defineProperty(canvas, 'width', { value: 800, configurable: true });
     Object.defineProperty(canvas, 'height', { value: 600, configurable: true });
-    
+
     const sceneConfig = createEditorScene(canvas);
     const camera = createOrthographicCamera('testCamera', sceneConfig.scene);
 
@@ -35,8 +35,10 @@ describe('attachCamera', () => {
 
     // For orthographic camera, aspect ratio should affect the bounds
     const aspectRatio = 800 / 600;
-    expect(Math.abs((camera as any).orthoRight / (camera as any).orthoTop)).toBeCloseTo(aspectRatio, 2);
-    
+    expect(
+      Math.abs((camera as any).orthoRight / (camera as any).orthoTop)
+    ).toBeCloseTo(aspectRatio, 2);
+
     sceneConfig.dispose();
   });
 
@@ -49,7 +51,7 @@ describe('attachCamera', () => {
 
     // Camera should be active but not have controls attached
     expect(sceneConfig.scene.activeCamera).toBe(camera);
-    
+
     sceneConfig.dispose();
   });
 
@@ -61,7 +63,7 @@ describe('attachCamera', () => {
     const result = attachCamera(camera, sceneConfig.scene, canvas);
 
     expect(result).toBeUndefined();
-    
+
     sceneConfig.dispose();
   });
 });

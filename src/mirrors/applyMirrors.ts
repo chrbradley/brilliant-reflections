@@ -15,7 +15,7 @@ export interface AppliedMirror {
 /**
  * Gets the list of walls that should have mirrors
  * Based on spec: north, east, and west walls only
- * 
+ *
  * @returns Array of wall names
  */
 export const getMirrorWalls = (): string[] => {
@@ -24,13 +24,18 @@ export const getMirrorWalls = (): string[] => {
 
 /**
  * Creates a mirror material from configuration
- * 
+ *
  * @param config - Mirror configuration
  * @returns Standard material with mirror texture
  */
-export const createMirrorMaterial = (config: MirrorConfig): StandardMaterial => {
-  const material = new StandardMaterial(`${config.name}_material`, config.scene);
-  
+export const createMirrorMaterial = (
+  config: MirrorConfig
+): StandardMaterial => {
+  const material = new StandardMaterial(
+    `${config.name}_material`,
+    config.scene
+  );
+
   try {
     // Create mirror texture
     const mirrorTexture = new MirrorTexture(
@@ -39,13 +44,13 @@ export const createMirrorMaterial = (config: MirrorConfig): StandardMaterial => 
       config.scene,
       true // Generate mipmaps
     );
-    
+
     // Set reflection plane
     mirrorTexture.mirrorPlane = config.reflectionPlane;
-    
+
     // Initially empty render list - will be populated later
     mirrorTexture.renderList = [];
-    
+
     // Apply to material
     material.reflectionTexture = mirrorTexture;
     material.disableLighting = true; // Pure reflection
@@ -54,13 +59,13 @@ export const createMirrorMaterial = (config: MirrorConfig): StandardMaterial => 
     // Return material without mirror texture
     console.warn('Failed to create mirror texture:', e);
   }
-  
+
   return material;
 };
 
 /**
  * Applies mirror material to a wall mesh
- * 
+ *
  * @param wall - Wall mesh to apply mirror to
  * @param mirrorConfig - Mirror configuration
  * @returns Applied mirror result
@@ -70,18 +75,21 @@ export const applyMirrorToWall = (
   mirrorConfig: MirrorConfig
 ): AppliedMirror => {
   const material = createMirrorMaterial(mirrorConfig);
-  
+
   // Apply material to wall
   wall.material = material;
-  
+
   // Configure render list: all meshes except the wall itself
-  if (material.reflectionTexture && material.reflectionTexture instanceof MirrorTexture) {
+  if (
+    material.reflectionTexture &&
+    material.reflectionTexture instanceof MirrorTexture
+  ) {
     const mirrorTexture = material.reflectionTexture as MirrorTexture;
     mirrorTexture.renderList = mirrorConfig.scene.meshes.filter(
-      mesh => mesh !== wall && mesh.isVisible && mesh.isEnabled()
+      (mesh) => mesh !== wall && mesh.isVisible && mesh.isEnabled()
     );
   }
-  
+
   return {
     wall,
     material,

@@ -20,11 +20,7 @@ const getFaceColor = (localDir: Vector3): Color3 => {
  */
 const generateLocalDirection = (index: number, count: number): Vector3 => {
   const angle = (index / count) * Math.PI * 2; // 0 to 2π
-  return new Vector3(
-    Math.cos(angle),
-    0,
-    Math.sin(angle)
-  );
+  return new Vector3(Math.cos(angle), 0, Math.sin(angle));
 };
 
 /**
@@ -39,7 +35,7 @@ const transformToWorldDirection = (
 
 /**
  * Generates rays emanating from a position with given rotation
- * 
+ *
  * @param origin - Starting position for all rays
  * @param worldMatrix - World transformation matrix (includes rotation)
  * @param count - Number of rays to generate (0-8)
@@ -52,28 +48,28 @@ export const generateRays = (
 ): Ray[] => {
   // Clamp count to valid range
   const rayCount = Math.max(0, Math.min(8, count));
-  
+
   const rays: Ray[] = [];
-  
+
   // Offset origin slightly above ground to avoid z-fighting
   const offsetOrigin = origin.add(new Vector3(0, 0.01, 0));
-  
+
   for (let i = 0; i < rayCount; i++) {
     // Generate direction in local space
     const localDir = generateLocalDirection(i, rayCount);
-    
+
     // Get color based on exit face
     const color = getFaceColor(localDir);
-    
+
     // Transform to world space
     const worldDir = transformToWorldDirection(localDir, worldMatrix);
-    
+
     rays.push({
       origin: offsetOrigin.clone(),
       direction: worldDir,
       color: color.clone(),
     });
   }
-  
+
   return rays;
 };

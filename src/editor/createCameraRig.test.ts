@@ -19,7 +19,7 @@ describe('createCameraRig', () => {
     expect(rig.coneIndicator).toBeDefined();
     expect(rig.rigNode.name).toBe('camRig');
     expect(rig.pivotNode.name).toBe('camPivot');
-    
+
     sceneConfig.dispose();
   });
 
@@ -32,7 +32,7 @@ describe('createCameraRig', () => {
     expect(rig.rigNode.position.x).toBe(0);
     expect(rig.rigNode.position.y).toBe(0);
     expect(rig.rigNode.position.z).toBe(-3);
-    
+
     sceneConfig.dispose();
   });
 
@@ -43,7 +43,7 @@ describe('createCameraRig', () => {
 
     // TransformNodes don't have isPickable, but cone should be pickable
     expect(rig.coneIndicator.isPickable).toBe(true);
-    
+
     sceneConfig.dispose();
   });
 
@@ -54,7 +54,7 @@ describe('createCameraRig', () => {
 
     expect(rig.coneIndicator.name).toBe('camera');
     // Cone should be created with specific dimensions
-    
+
     sceneConfig.dispose();
   });
 
@@ -66,7 +66,7 @@ describe('createCameraRig', () => {
     // Check the nested parent-child relationships
     expect(rig.coneIndicator.parent).toBe(rig.pivotNode);
     expect(rig.pivotNode.parent).toBe(rig.rigNode);
-    
+
     sceneConfig.dispose();
   });
 
@@ -79,7 +79,7 @@ describe('createCameraRig', () => {
     expect(rig.rigNode.position.x).toBe(customPosition.x);
     expect(rig.rigNode.position.y).toBe(customPosition.y);
     expect(rig.rigNode.position.z).toBe(customPosition.z);
-    
+
     sceneConfig.dispose();
   });
 
@@ -91,10 +91,10 @@ describe('createCameraRig', () => {
     // Rig should have orientation rotations (matches reference)
     expect(rig.rigNode.rotation.x).toBeCloseTo(Math.PI / 2);
     expect(rig.rigNode.rotation.z).toBeCloseTo(Math.PI);
-    
+
     // Pivot should have initial Y rotation (matches reference)
     expect(rig.pivotNode.rotation.y).toBeCloseTo(Math.PI / 4);
-    
+
     sceneConfig.dispose();
   });
 
@@ -107,7 +107,7 @@ describe('createCameraRig', () => {
     expect(rig).toHaveProperty('rigNode');
     expect(rig).toHaveProperty('pivotNode');
     expect(rig).toHaveProperty('coneIndicator');
-    
+
     sceneConfig.dispose();
   });
 });

@@ -34,7 +34,7 @@ export interface WallPlane {
  * Configuration for ray generation
  */
 export interface RayConfig {
-  count: number;      // Number of rays (0-8)
+  count: number; // Number of rays (0-8)
   maxBounces: number; // Maximum reflections (1-5)
 }
 
@@ -42,8 +42,8 @@ export interface RayConfig {
  * Face colors for the cube (Rubik's style)
  */
 export const FACE_COLORS = {
-  front: new Color3(0.48, 1, 0),     // +Z green
-  back: new Color3(0, 0.72, 1),      // -Z blue  
-  right: new Color3(1, 0, 0.92),     // +X red
-  left: new Color3(1, 0.85, 0),      // -X orange
+  front: new Color3(0.48, 1, 0), // +Z green
+  back: new Color3(0, 0.72, 1), // -Z blue
+  right: new Color3(1, 0, 0.92), // +X red
+  left: new Color3(1, 0.85, 0), // -X orange
 } as const;

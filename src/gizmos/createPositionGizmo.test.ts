@@ -13,14 +13,14 @@ describe('createPositionGizmo', () => {
     const canvas = document.createElement('canvas');
     const sceneConfig = createEditorScene(canvas);
     const mesh = new Mesh('testMesh', sceneConfig.scene);
-    
+
     const gizmoConfig = createPositionGizmo(sceneConfig.scene, mesh);
-    
+
     expect(gizmoConfig).toBeDefined();
     expect(gizmoConfig.gizmoManager).toBeDefined();
     expect(gizmoConfig.attachedMesh).toBe(mesh);
     expect(gizmoConfig.constraints).toBeDefined();
-    
+
     sceneConfig.dispose();
   });
 
@@ -28,13 +28,13 @@ describe('createPositionGizmo', () => {
     const canvas = document.createElement('canvas');
     const sceneConfig = createEditorScene(canvas);
     const mesh = new Mesh('testMesh', sceneConfig.scene);
-    
+
     const gizmoConfig = createPositionGizmo(sceneConfig.scene, mesh);
-    
+
     expect(gizmoConfig.constraints.xEnabled).toBe(true);
     expect(gizmoConfig.constraints.yEnabled).toBe(false); // Y disabled
     expect(gizmoConfig.constraints.zEnabled).toBe(true);
-    
+
     sceneConfig.dispose();
   });
 
@@ -42,11 +42,11 @@ describe('createPositionGizmo', () => {
     const canvas = document.createElement('canvas');
     const sceneConfig = createEditorScene(canvas);
     const mesh = new Mesh('testMesh', sceneConfig.scene);
-    
+
     const gizmoConfig = createPositionGizmo(sceneConfig.scene, mesh);
-    
+
     expect(gizmoConfig.gizmoManager.attachedMesh).toBe(mesh);
-    
+
     sceneConfig.dispose();
   });
 
@@ -54,12 +54,12 @@ describe('createPositionGizmo', () => {
     const canvas = document.createElement('canvas');
     const sceneConfig = createEditorScene(canvas);
     const mesh = new Mesh('testMesh', sceneConfig.scene);
-    
+
     const gizmoConfig = createPositionGizmo(sceneConfig.scene, mesh);
-    
+
     expect(gizmoConfig.constraints.updateCallback).toBeDefined();
     expect(typeof gizmoConfig.constraints.updateCallback).toBe('function');
-    
+
     sceneConfig.dispose();
   });
 
@@ -68,21 +68,21 @@ describe('createPositionGizmo', () => {
     const sceneConfig = createEditorScene(canvas);
     const mesh = new Mesh('testMesh', sceneConfig.scene);
     mesh.position = new Vector3(0, 0, 0);
-    
+
     const gizmoConfig = createPositionGizmo(sceneConfig.scene, mesh);
-    
+
     // Test constraint callback
     const testPosition = new Vector3(5.7, 2, -9.1);
     mesh.position.copyFrom(testPosition);
-    
+
     // Call the constraint callback
     gizmoConfig.constraints.updateCallback();
-    
+
     // Should be snapped to grid and clamped
     expect(mesh.position.x).toBe(6); // 5.7 -> 6
     expect(mesh.position.y).toBe(2); // Y unchanged
     expect(mesh.position.z).toBe(-8); // -9.1 -> -9 -> -8 (clamped)
-    
+
     sceneConfig.dispose();
   });
 
@@ -90,16 +90,16 @@ describe('createPositionGizmo', () => {
     const canvas = document.createElement('canvas');
     const sceneConfig = createEditorScene(canvas);
     const mesh = new Mesh('testMesh', sceneConfig.scene);
-    
+
     const gizmoConfig = createPositionGizmo(sceneConfig.scene, mesh, 0.5, 6);
-    
+
     // Test with custom constraints
     mesh.position = new Vector3(5.3, 0, 7.8);
     gizmoConfig.constraints.updateCallback();
-    
+
     expect(mesh.position.x).toBe(5.5); // Snapped to 0.5 grid
     expect(mesh.position.z).toBe(6); // 7.8 -> 8 -> 6 (clamped to 6)
-    
+
     sceneConfig.dispose();
   });
 
@@ -107,14 +107,14 @@ describe('createPositionGizmo', () => {
     const canvas = document.createElement('canvas');
     const sceneConfig = createEditorScene(canvas);
     const mesh = new Mesh('testMesh', sceneConfig.scene);
-    
+
     const gizmoConfig = createPositionGizmo(sceneConfig.scene, mesh);
-    
+
     expect(typeof gizmoConfig).toBe('object');
     expect(gizmoConfig).toHaveProperty('gizmoManager');
     expect(gizmoConfig).toHaveProperty('attachedMesh');
     expect(gizmoConfig).toHaveProperty('constraints');
-    
+
     sceneConfig.dispose();
   });
 
@@ -122,11 +122,11 @@ describe('createPositionGizmo', () => {
     const canvas = document.createElement('canvas');
     const sceneConfig = createEditorScene(canvas);
     const mesh = new Mesh('testMesh', sceneConfig.scene);
-    
+
     const gizmoConfig = createPositionGizmo(sceneConfig.scene, mesh);
-    
+
     expect(gizmoConfig.gizmoManager.positionGizmoEnabled).toBe(true);
-    
+
     sceneConfig.dispose();
   });
 });

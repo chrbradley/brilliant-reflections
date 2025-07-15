@@ -19,14 +19,17 @@ export const radiansToDegrees = (radians: number): number => {
 
 /**
  * Snaps angle to specified degree increments
- * 
+ *
  * @param angleRadians - Angle in radians to snap
  * @param snapDegrees - Snap increment in degrees (default 15)
  * @returns Snapped angle in radians
  */
-export const snapToAngle = (angleRadians: number, snapDegrees: number = 15): number => {
+export const snapToAngle = (
+  angleRadians: number,
+  snapDegrees: number = 15
+): number => {
   if (snapDegrees === 0) return angleRadians;
-  
+
   const degrees = radiansToDegrees(angleRadians);
   const snappedDegrees = Math.round(degrees / snapDegrees) * snapDegrees;
   return degreesToRadians(snappedDegrees);
@@ -34,18 +37,18 @@ export const snapToAngle = (angleRadians: number, snapDegrees: number = 15): num
 
 /**
  * Normalizes angle to [-π, π) range
- * 
+ *
  * @param angleRadians - Angle in radians to normalize
  * @returns Normalized angle in [-π, π) range
  */
 export const normalizeAngle = (angleRadians: number): number => {
   let normalized = angleRadians;
-  
+
   // Handle the case where input is exactly π (should stay π, not become -π)
   if (Math.abs(normalized - Math.PI) < 1e-15) {
     return Math.PI;
   }
-  
+
   // Normalize to [-π, π) range
   while (normalized > Math.PI) {
     normalized -= 2 * Math.PI;
@@ -53,13 +56,13 @@ export const normalizeAngle = (angleRadians: number): number => {
   while (normalized <= -Math.PI) {
     normalized += 2 * Math.PI;
   }
-  
+
   return normalized;
 };
 
 /**
  * Clamps rotation to Y-axis only (preserves Y rotation, zeros X and Z)
- * 
+ *
  * @param rotation - Vector3 rotation to clamp
  * @returns New Vector3 with only Y rotation preserved
  */
@@ -69,7 +72,7 @@ export const clampToYAxis = (rotation: Vector3): Vector3 => {
 
 /**
  * Applies rotation constraints: Y-axis only, snapped, and normalized
- * 
+ *
  * @param rotation - Current rotation Vector3
  * @param snapDegrees - Snap increment in degrees (default 15)
  * @returns New Vector3 with constraints applied
@@ -80,12 +83,12 @@ export const applyRotationConstraints = (
 ): Vector3 => {
   // Clamp to Y-axis only
   const yOnlyRotation = clampToYAxis(rotation);
-  
+
   // Snap Y rotation to grid
   const snappedY = snapToAngle(yOnlyRotation.y, snapDegrees);
-  
+
   // Normalize Y rotation to [-π, π)
   const normalizedY = normalizeAngle(snappedY);
-  
+
   return new Vector3(0, normalizedY, 0);
 };
