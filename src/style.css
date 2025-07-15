@@ -112,6 +112,20 @@ body {
   color: #888;
 }
 
+.instructions {
+  margin: 2rem 0 0;
+  padding: 1.5rem;
+  background-color: #2d2d2d;
+  border-radius: 8px;
+  line-height: 1.6;
+}
+
+.instructions p {
+  font-size: 15px;
+  color: #e0e0e0;
+  text-align: left;
+}
+
 /* Tablet layout */
 @media (max-width: 1024px) {
   .canvas-container {
