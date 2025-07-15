@@ -38,11 +38,16 @@ const calculateCameraPosition = (rigPosition: Vector3, pivotRotation: Vector3): 
 /**
  * Calculates camera rotation to look forward
  * Camera should look in the same direction as the cone points
+ * The pivotNode starts with rotation.y = PI/4, but the camera needs adjustment
  */
 const calculateCameraRotation = (pivotRotation: Vector3): Vector3 => {
+  // The pivotNode has an initial rotation of PI/4 (45 degrees)
+  // But the render camera is 90 degrees off, so we need to adjust by -PI/2
+  const rotationAdjustment = -Math.PI / 2;
+  
   return new Vector3(
     0, // Look straight forward
-    pivotRotation.y, // Same yaw as pivot
+    pivotRotation.y + rotationAdjustment, // Adjusted yaw
     0 // No roll
   );
 };
