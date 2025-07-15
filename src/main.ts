@@ -161,40 +161,97 @@ const initialize = (): void => {
       initialState.cube.rotation
     );
 
-    // Apply mirrors to render scene walls
-    const mirrorWalls = getMirrorWalls();
-    for (const wallName of mirrorWalls) {
+    // Test: Make all walls transparent so we can see mirror instances
+    const wallNames = ['northWall', 'southWall', 'eastWall', 'westWall'];
+    wallNames.forEach(wallName => {
       const wall = renderConfig.scene.getMeshByName(wallName);
       if (wall && wall instanceof BABYLON.Mesh) {
-        let position: Vector3;
-        let normal: Vector3;
-
-        switch (wallName) {
-          case 'northWall':
-            position = new Vector3(0, 0, 10);
-            normal = new Vector3(0, 0, -1);
-            break;
-          case 'eastWall':
-            position = new Vector3(10, 0, 0);
-            normal = new Vector3(-1, 0, 0);
-            break;
-          case 'westWall':
-            position = new Vector3(-10, 0, 0);
-            normal = new Vector3(1, 0, 0);
-            break;
-          default:
-            continue;
-        }
-
-        const mirrorConfig = createMirrorConfig(
-          wallName,
-          position,
-          normal,
-          renderConfig.scene
-        );
-        applyMirrorToWall(wall, mirrorConfig);
+        const transparentMaterial = new BABYLON.StandardMaterial(`${wallName}Transparent`, renderConfig.scene);
+        transparentMaterial.alpha = 0.3;
+        transparentMaterial.backFaceCulling = false;
+        transparentMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8);
+        wall.material = transparentMaterial;
       }
+    });
+
+    // Test: Create mirror instances of cube and ground across north wall
+    const mirrorInstances: BABYLON.InstancedMesh[] = [];
+    
+    // Create cube instance
+    const cubeInstance = renderCube.createInstance('cubeMirrorNorth');
+    cubeInstance.position = new BABYLON.Vector3(
+      renderCube.position.x,
+      renderCube.position.y,
+      20 - renderCube.position.z  // Mirror across z=10 plane
+    );
+    mirrorInstances.push(cubeInstance);
+    
+    // Create ground instance
+    const ground = renderConfig.scene.getMeshByName('ground');
+    if (ground && ground instanceof BABYLON.Mesh) {
+      const groundInstance = ground.createInstance('groundMirrorNorth');
+      groundInstance.position = new BABYLON.Vector3(
+        ground.position.x,
+        ground.position.y,
+        20 - ground.position.z  // Mirror across z=10 plane
+      );
+      mirrorInstances.push(groundInstance);
     }
+    
+    // Helper functions to show/hide instances
+    const hideInstances = () => {
+      mirrorInstances.forEach(instance => instance.setEnabled(false));
+    };
+    
+    const showInstances = () => {
+      mirrorInstances.forEach(instance => instance.setEnabled(true));
+    };
+    
+    // Helper function to update instance positions
+    const updateInstancePositions = () => {
+      // Update cube instance
+      cubeInstance.position.x = renderCube.position.x;
+      cubeInstance.position.y = renderCube.position.y;
+      cubeInstance.position.z = 20 - renderCube.position.z;
+    };
+    
+    // Initially show instances
+    showInstances();
+
+    // TEMPORARILY DISABLED: Mirror materials for testing instanced geometry
+    // const mirrorWalls = getMirrorWalls();
+    // for (const wallName of mirrorWalls) {
+    //   const wall = renderConfig.scene.getMeshByName(wallName);
+    //   if (wall && wall instanceof BABYLON.Mesh) {
+    //     let position: Vector3;
+    //     let normal: Vector3;
+
+    //     switch (wallName) {
+    //       case 'northWall':
+    //         position = new Vector3(0, 0, 10);
+    //         normal = new Vector3(0, 0, -1);
+    //         break;
+    //       case 'eastWall':
+    //         position = new Vector3(10, 0, 0);
+    //         normal = new Vector3(-1, 0, 0);
+    //         break;
+    //       case 'westWall':
+    //         position = new Vector3(-10, 0, 0);
+    //         normal = new Vector3(1, 0, 0);
+    //         break;
+    //       default:
+    //         continue;
+    //     }
+
+    //     const mirrorConfig = createMirrorConfig(
+    //       wallName,
+    //       position,
+    //       normal,
+    //       renderConfig.scene
+    //     );
+    //     applyMirrorToWall(wall, mirrorConfig);
+    //   }
+    // }
 
     // Initialize multi-pass render manager
     renderPassManager = new RenderPassManager({
@@ -317,6 +374,9 @@ const initialize = (): void => {
           if (renderCube.position) {
             renderCube.position.copyFrom(editorCube.position);
           }
+          
+          // Update instance positions in case of constraint changes
+          updateInstancePositions();
 
           // Update rays if cube is selected
           if (rayManager && selectionState.selectedObjectId === 'colorCube') {
@@ -372,6 +432,9 @@ const initialize = (): void => {
           if (renderCube.rotation) {
             renderCube.rotation.copyFrom(editorCube.rotation);
           }
+          
+          // Update instance rotation in case of constraint changes
+          cubeInstance.rotation.copyFrom(renderCube.rotation);
 
           // Update rays if cube is selected
           if (rayManager && selectionState.selectedObjectId === 'colorCube') {
@@ -409,65 +472,86 @@ const initialize = (): void => {
     // Apply constraints on drag (delayed to ensure gizmos are ready)
     setTimeout(() => {
       if (gizmoManager.gizmos.positionGizmo) {
-        // Hide rays on drag start, show on drag end (for cube only)
+        // Hide rays and instances on drag start (for cube only)
         gizmoManager.gizmos.positionGizmo.xGizmo.dragBehavior.onDragStartObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube && rayManager) {
-              rayManager = hideRays(rayManager);
+            if (gizmoManager.attachedMesh === editorCube) {
+              if (rayManager) {
+                rayManager = hideRays(rayManager);
+              }
+              hideInstances();
             }
           }
         );
         gizmoManager.gizmos.positionGizmo.yGizmo.dragBehavior.onDragStartObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube && rayManager) {
-              rayManager = hideRays(rayManager);
+            if (gizmoManager.attachedMesh === editorCube) {
+              if (rayManager) {
+                rayManager = hideRays(rayManager);
+              }
+              hideInstances();
             }
           }
         );
         gizmoManager.gizmos.positionGizmo.zGizmo.dragBehavior.onDragStartObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube && rayManager) {
-              rayManager = hideRays(rayManager);
+            if (gizmoManager.attachedMesh === editorCube) {
+              if (rayManager) {
+                rayManager = hideRays(rayManager);
+              }
+              hideInstances();
             }
           }
         );
 
         gizmoManager.gizmos.positionGizmo.xGizmo.dragBehavior.onDragEndObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube && rayManager) {
-              rayManager = showRays(rayManager);
-              rayManager = updateRays(
-                rayManager,
-                editorCube.position,
-                editorCube.getWorldMatrix(),
-                { count: uiState.rayCount, maxBounces: uiState.maxBounces }
-              );
+            if (gizmoManager.attachedMesh === editorCube) {
+              if (rayManager) {
+                rayManager = showRays(rayManager);
+                rayManager = updateRays(
+                  rayManager,
+                  editorCube.position,
+                  editorCube.getWorldMatrix(),
+                  { count: uiState.rayCount, maxBounces: uiState.maxBounces }
+                );
+              }
+              updateInstancePositions();
+              showInstances();
             }
           }
         );
         gizmoManager.gizmos.positionGizmo.yGizmo.dragBehavior.onDragEndObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube && rayManager) {
-              rayManager = showRays(rayManager);
-              rayManager = updateRays(
-                rayManager,
-                editorCube.position,
-                editorCube.getWorldMatrix(),
-                { count: uiState.rayCount, maxBounces: uiState.maxBounces }
-              );
+            if (gizmoManager.attachedMesh === editorCube) {
+              if (rayManager) {
+                rayManager = showRays(rayManager);
+                rayManager = updateRays(
+                  rayManager,
+                  editorCube.position,
+                  editorCube.getWorldMatrix(),
+                  { count: uiState.rayCount, maxBounces: uiState.maxBounces }
+                );
+              }
+              updateInstancePositions();
+              showInstances();
             }
           }
         );
         gizmoManager.gizmos.positionGizmo.zGizmo.dragBehavior.onDragEndObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube && rayManager) {
-              rayManager = showRays(rayManager);
-              rayManager = updateRays(
-                rayManager,
-                editorCube.position,
-                editorCube.getWorldMatrix(),
-                { count: uiState.rayCount, maxBounces: uiState.maxBounces }
-              );
+            if (gizmoManager.attachedMesh === editorCube) {
+              if (rayManager) {
+                rayManager = showRays(rayManager);
+                rayManager = updateRays(
+                  rayManager,
+                  editorCube.position,
+                  editorCube.getWorldMatrix(),
+                  { count: uiState.rayCount, maxBounces: uiState.maxBounces }
+                );
+              }
+              updateInstancePositions();
+              showInstances();
             }
           }
         );
@@ -489,26 +573,34 @@ const initialize = (): void => {
           constrainRotation
         );
 
-        // Hide rays during rotation drag
+        // Hide rays and instances during rotation drag
         gizmoManager.gizmos.rotationGizmo.yGizmo.dragBehavior.onDragStartObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube && rayManager) {
-              rayManager = hideRays(rayManager);
+            if (gizmoManager.attachedMesh === editorCube) {
+              if (rayManager) {
+                rayManager = hideRays(rayManager);
+              }
+              hideInstances();
             }
           }
         );
 
-        // Show and update rays after rotation
+        // Show and update rays and instances after rotation
         gizmoManager.gizmos.rotationGizmo.yGizmo.dragBehavior.onDragEndObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube && rayManager) {
-              rayManager = showRays(rayManager);
-              rayManager = updateRays(
-                rayManager,
-                editorCube.position,
-                editorCube.getWorldMatrix(),
-                { count: uiState.rayCount, maxBounces: uiState.maxBounces }
-              );
+            if (gizmoManager.attachedMesh === editorCube) {
+              if (rayManager) {
+                rayManager = showRays(rayManager);
+                rayManager = updateRays(
+                  rayManager,
+                  editorCube.position,
+                  editorCube.getWorldMatrix(),
+                  { count: uiState.rayCount, maxBounces: uiState.maxBounces }
+                );
+              }
+              // Update cube instance rotation
+              cubeInstance.rotation.copyFrom(renderCube.rotation);
+              showInstances();
             }
           }
         );
@@ -572,7 +664,7 @@ const initialize = (): void => {
     // Also handle gizmo attachment changes (matches reference pattern)
     gizmoManager.onAttachedToMeshObservable.add((mesh) => {
       if (mesh === editorCube) {
-        // Cube selected - show rays and lock Y movement
+        // Cube selected - show rays and instances, lock Y movement
         if (rayManager) {
           rayManager = showRays(rayManager);
           rayManager = updateRays(
@@ -582,22 +674,25 @@ const initialize = (): void => {
             { count: uiState.rayCount, maxBounces: uiState.maxBounces }
           );
         }
+        showInstances();
         if (gizmoManager.gizmos.positionGizmo) {
           gizmoManager.gizmos.positionGizmo.yGizmo.isEnabled = false;
         }
       } else if (mesh === cameraIndicator.indicator) {
-        // Camera indicator selected - hide rays and allow Y movement
+        // Camera indicator selected - hide rays, keep instances visible, allow Y movement
         if (rayManager) {
           rayManager = hideRays(rayManager);
         }
+        // Keep instances visible
         if (gizmoManager.gizmos.positionGizmo) {
           gizmoManager.gizmos.positionGizmo.yGizmo.isEnabled = true;
         }
       } else if (mesh === null) {
-        // Nothing selected
+        // Nothing selected - hide rays but keep instances visible
         if (rayManager) {
           rayManager = hideRays(rayManager);
         }
+        // Keep instances visible
       }
     });
 
@@ -796,6 +891,10 @@ const initialize = (): void => {
         if (rayManager && editorCube) {
           rayManager = hideRays(rayManager);
         }
+        
+        // Update instances (keep them visible)
+        updateInstancePositions();
+        showInstances();
 
         // Apply quality settings to mirror textures
         if (renderConfig) {
