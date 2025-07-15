@@ -51,6 +51,7 @@ import {
 import {
   createInitialUIState,
   updateRayCount,
+  updateFanRays,
   updateMaxBounces,
   type UIState,
 } from './state/uiState';
@@ -403,7 +404,7 @@ const initialize = (): void => {
               rayManager,
               editorSphere.position,
               editorSphere.getWorldMatrix(),
-              { count: uiState.rayCount, maxBounces: uiState.maxBounces }
+              { count: uiState.rayCount, fanRays: uiState.fanRays, maxBounces: uiState.maxBounces }
             );
           }
         } else if (
@@ -461,7 +462,7 @@ const initialize = (): void => {
               rayManager,
               editorSphere.position,
               editorSphere.getWorldMatrix(),
-              { count: uiState.rayCount, maxBounces: uiState.maxBounces }
+              { count: uiState.rayCount, fanRays: uiState.fanRays, maxBounces: uiState.maxBounces }
             );
           }
         } else if (
@@ -532,7 +533,7 @@ const initialize = (): void => {
                   rayManager,
                   editorSphere.position,
                   editorSphere.getWorldMatrix(),
-                  { count: uiState.rayCount, maxBounces: uiState.maxBounces }
+                  { count: uiState.rayCount, fanRays: uiState.fanRays, maxBounces: uiState.maxBounces }
                 );
               }
               updateInstancePositions();
@@ -549,7 +550,7 @@ const initialize = (): void => {
                   rayManager,
                   editorSphere.position,
                   editorSphere.getWorldMatrix(),
-                  { count: uiState.rayCount, maxBounces: uiState.maxBounces }
+                  { count: uiState.rayCount, fanRays: uiState.fanRays, maxBounces: uiState.maxBounces }
                 );
               }
               updateInstancePositions();
@@ -566,7 +567,7 @@ const initialize = (): void => {
                   rayManager,
                   editorSphere.position,
                   editorSphere.getWorldMatrix(),
-                  { count: uiState.rayCount, maxBounces: uiState.maxBounces }
+                  { count: uiState.rayCount, fanRays: uiState.fanRays, maxBounces: uiState.maxBounces }
                 );
               }
               updateInstancePositions();
@@ -614,7 +615,7 @@ const initialize = (): void => {
                   rayManager,
                   editorSphere.position,
                   editorSphere.getWorldMatrix(),
-                  { count: uiState.rayCount, maxBounces: uiState.maxBounces }
+                  { count: uiState.rayCount, fanRays: uiState.fanRays, maxBounces: uiState.maxBounces }
                 );
               }
               // Update instance positions and rotations
@@ -690,7 +691,7 @@ const initialize = (): void => {
             rayManager,
             editorSphere.position,
             editorSphere.getWorldMatrix(),
-            { count: uiState.rayCount, maxBounces: uiState.maxBounces }
+            { count: uiState.rayCount, fanRays: uiState.fanRays, maxBounces: uiState.maxBounces }
           );
         }
         showInstances();
@@ -745,6 +746,10 @@ const initialize = (): void => {
         'raysSlider'
       ) as HTMLInputElement;
       const raysValue = document.getElementById('raysValue');
+      const fanRaysSlider = document.getElementById(
+        'fanRaysSlider'
+      ) as HTMLInputElement;
+      const fanRaysValue = document.getElementById('fanRaysValue');
       const bouncesSlider = document.getElementById(
         'bouncesSlider'
       ) as HTMLInputElement;
@@ -753,7 +758,7 @@ const initialize = (): void => {
         'resetButton'
       ) as HTMLButtonElement;
 
-      if (!raysSlider || !bouncesSlider || !resetButton) {
+      if (!raysSlider || !fanRaysSlider || !bouncesSlider || !resetButton) {
         console.error('UI controls not found');
         return;
       }
@@ -763,7 +768,7 @@ const initialize = (): void => {
         uiState = updateRayCount(uiState, value);
         if (raysValue) raysValue.textContent = value.toString();
 
-        // Update rays if cube is selected
+        // Update rays if sphere is selected
         if (
           rayManager &&
           selectionState.selectedObjectId === 'colorSphere' &&
@@ -773,11 +778,32 @@ const initialize = (): void => {
             rayManager,
             editorSphere.position,
             editorSphere.getWorldMatrix(),
-            { count: uiState.rayCount, maxBounces: uiState.maxBounces }
+            { count: uiState.rayCount, fanRays: uiState.fanRays, maxBounces: uiState.maxBounces }
           );
         }
       });
       unbindFunctions.push(unbindRays);
+
+      // Bind fan rays slider
+      const unbindFanRays = bindSliderToState(fanRaysSlider, (value) => {
+        uiState = updateFanRays(uiState, value);
+        if (fanRaysValue) fanRaysValue.textContent = value.toString();
+
+        // Update rays if sphere is selected
+        if (
+          rayManager &&
+          selectionState.selectedObjectId === 'colorSphere' &&
+          editorSphere
+        ) {
+          rayManager = updateRays(
+            rayManager,
+            editorSphere.position,
+            editorSphere.getWorldMatrix(),
+            { count: uiState.rayCount, fanRays: uiState.fanRays, maxBounces: uiState.maxBounces }
+          );
+        }
+      });
+      unbindFunctions.push(unbindFanRays);
 
       // Bind bounces slider
       const unbindBounces = bindSliderToState(bouncesSlider, (value) => {
@@ -801,7 +827,7 @@ const initialize = (): void => {
             rayManager,
             editorSphere.position,
             editorSphere.getWorldMatrix(),
-            { count: uiState.rayCount, maxBounces: uiState.maxBounces }
+            { count: uiState.rayCount, fanRays: uiState.fanRays, maxBounces: uiState.maxBounces }
           );
         }
       });
@@ -819,6 +845,8 @@ const initialize = (): void => {
         // Update UI controls
         raysSlider.value = uiState.rayCount.toString();
         if (raysValue) raysValue.textContent = uiState.rayCount.toString();
+        fanRaysSlider.value = uiState.fanRays.toString();
+        if (fanRaysValue) fanRaysValue.textContent = uiState.fanRays.toString();
         bouncesSlider.value = uiState.maxBounces.toString();
         if (bouncesValue)
           bouncesValue.textContent = uiState.maxBounces.toString();

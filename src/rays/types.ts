@@ -35,6 +35,7 @@ export interface WallPlane {
  */
 export interface RayConfig {
   count: number; // Number of rays (0-8)
+  fanRays: number; // Number of fan rays per origin (1-6)
   maxBounces: number; // Maximum reflections (1-5)
 }
 

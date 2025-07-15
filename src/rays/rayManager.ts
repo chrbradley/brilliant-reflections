@@ -80,6 +80,7 @@ export const updateRays = (
     origin,
     worldMatrix,
     rayCount: config.count,
+    fanRays: config.fanRays,
     maxBounces: config.maxBounces,
     scene: manager.scene,
     parentNode: manager.parentNode,

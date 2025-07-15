@@ -89,6 +89,7 @@ export interface RayVisualizationConfig {
   origin: Vector3;
   worldMatrix: Matrix;
   rayCount: number;
+  fanRays: number;
   maxBounces: number;
   scene: Scene;
   parentNode: TransformNode;
@@ -103,7 +104,7 @@ export interface RayVisualizationConfig {
 export const createAllRayMeshes = (
   config: RayVisualizationConfig
 ): TransformNode => {
-  const { origin, worldMatrix, rayCount, maxBounces, scene, parentNode } =
+  const { origin, worldMatrix, rayCount, fanRays, maxBounces, scene, parentNode } =
     config;
 
   // Clear existing children
@@ -111,8 +112,8 @@ export const createAllRayMeshes = (
     child.dispose();
   });
 
-  // Generate rays
-  const rays = generateRays(origin, worldMatrix, rayCount);
+  // Generate rays with fan pattern
+  const rays = generateRays(origin, worldMatrix, rayCount, fanRays);
 
   // Get wall planes
   const wallPlanes = createWallPlanes();

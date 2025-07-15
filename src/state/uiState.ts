@@ -11,6 +11,7 @@ export type QualityLevel = 'low' | 'medium' | 'high';
  */
 export interface UIState {
   readonly rayCount: number;
+  readonly fanRays: number;
   readonly maxBounces: number;
   readonly quality: QualityLevel;
 }
@@ -20,7 +21,8 @@ export interface UIState {
  */
 export const createInitialUIState = (): UIState => {
   return Object.freeze({
-    rayCount: 4,
+    rayCount: 1,
+    fanRays: 3,
     maxBounces: 2,
     quality: 'high' as QualityLevel,
   });
@@ -32,6 +34,14 @@ export const createInitialUIState = (): UIState => {
 export const validateRayCount = (value: number): number => {
   const rounded = Math.round(value);
   return Math.max(0, Math.min(8, rounded));
+};
+
+/**
+ * Validate and clamp fan rays to valid range
+ */
+export const validateFanRays = (value: number): number => {
+  const rounded = Math.round(value);
+  return Math.max(1, Math.min(6, rounded));
 };
 
 /**
@@ -56,6 +66,23 @@ export const updateRayCount = (state: UIState, rayCount: number): UIState => {
   return Object.freeze({
     ...state,
     rayCount: validated,
+  });
+};
+
+/**
+ * Update fan rays with validation
+ */
+export const updateFanRays = (state: UIState, fanRays: number): UIState => {
+  const validated = validateFanRays(fanRays);
+
+  // Return same state if value unchanged
+  if (validated === state.fanRays) {
+    return state;
+  }
+
+  return Object.freeze({
+    ...state,
+    fanRays: validated,
   });
 };
 
