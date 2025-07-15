@@ -348,15 +348,28 @@ const initialize = (): void => {
           }
         } else if (
           attachedMesh === cameraRig.rigNode &&
+          cameraRig.rigNode.rotation &&
           cameraRig.pivotNode.rotation
         ) {
           // Handle camera rig rotation constraints (Y-axis only)
-          // Apply Y rotation to pivot, not rig (matches reference behavior)
-          const constrained = applyRotationConstraints(
-            cameraRig.pivotNode.rotation,
-            15
+          // The gizmo rotates the rigNode, but we need to transfer Y rotation to pivotNode
+          
+          // Get the Y rotation that was applied to rigNode
+          const yRotationDelta = cameraRig.rigNode.rotation.y;
+          
+          // Add it to the pivotNode's current Y rotation
+          const newPivotRotation = new Vector3(
+            cameraRig.pivotNode.rotation.x,
+            cameraRig.pivotNode.rotation.y + yRotationDelta,
+            cameraRig.pivotNode.rotation.z
           );
+          
+          // Apply constraints
+          const constrained = applyRotationConstraints(newPivotRotation, 15);
           cameraRig.pivotNode.rotation.copyFrom(constrained);
+          
+          // Reset rigNode to its fixed rotation (keep cone pointing forward)
+          cameraRig.rigNode.rotation.set(Math.PI / 2, 0, Math.PI);
 
           // Update transform state
           transformState = updateObjectRotation(
