@@ -20,6 +20,7 @@ import {
 } from './state/selectionState';
 import { createMirrorConfig } from './mirrors/createMirrorTexture';
 import { applyMirrorToWall, getMirrorWalls } from './mirrors/applyMirrors';
+import { RenderPassManager } from './render/RenderPassManager';
 import { createPickHandler } from './editor/handlePicking';
 import { applyHighlight, removeHighlight } from './effects/highlightEffect';
 import {
@@ -78,6 +79,7 @@ let transformState: TransformState = createInitialTransformState();
 let uiState: UIState = createInitialUIState();
 let gizmoManager: GizmoManager | null = null;
 let rayManager: RayManager | null = null;
+let renderPassManager: RenderPassManager | null = null;
 let unbindFunctions: Array<() => void> = [];
 
 /**
@@ -91,6 +93,10 @@ const cleanup = (): void => {
   if (rayManager) {
     disposeRayManager(rayManager);
     rayManager = null;
+  }
+  if (renderPassManager) {
+    renderPassManager.dispose();
+    renderPassManager = null;
   }
   if (gizmoManager) {
     gizmoManager.dispose();
@@ -174,6 +180,13 @@ const initialize = (): void => {
         applyMirrorToWall(wall, mirrorConfig);
       }
     }
+
+    // Initialize multi-pass render manager
+    renderPassManager = new RenderPassManager({
+      scene: renderConfig.scene,
+      maxBounces: 2, // Initial bounce count
+      mirrorWalls: getMirrorWalls(),
+    });
 
     // Get initial state configuration
     const initialState = createInitialStateConfig();
@@ -651,6 +664,9 @@ const initialize = (): void => {
         uiState = updateMaxBounces(uiState, value);
         if (bouncesValue) bouncesValue.textContent = value.toString();
 
+        // Update render pass manager
+        renderPassManager.setBounceCount(value);
+
         // Update rays if cube is selected
         if (
           rayManager &&
@@ -703,6 +719,9 @@ const initialize = (): void => {
       const handleReset = (): void => {
         // Reset UI state
         uiState = createInitialUIState();
+
+        // Reset render pass manager
+        renderPassManager.setBounceCount(uiState.maxBounces);
 
         // Update UI controls
         raysSlider.value = uiState.rayCount.toString();
@@ -826,6 +845,10 @@ const initialize = (): void => {
     renderConfig.engine.runRenderLoop(() => {
       // Only render if scene has active cameras
       if (renderConfig?.scene.activeCamera) {
+        // Execute multi-pass rendering for reflections
+        renderPassManager.executeRenderPasses();
+        
+        // Final render to screen
         renderConfig.scene.render();
       }
     });
