@@ -9,8 +9,8 @@ import { createPerspectiveCamera } from './cameras/createPerspectiveCamera';
 import { attachCamera } from './cameras/attachCamera';
 import { createRoom } from './geometry/createRoom';
 import { createCube } from './geometry/createCube';
-import { createCameraRig } from './editor/createCameraRig';
-import { syncCameraWithRig } from './render/syncCameraWithRig';
+import { createCameraIndicator } from './editor/createCameraIndicator';
+import { syncCameraWithIndicator } from './render/syncCameraWithIndicator';
 import { createAmbientLight } from './lighting/createLighting';
 import {
   createInitialSelectionState,
@@ -178,8 +178,8 @@ const initialize = (): void => {
     const editorCube = createCube(editorConfig.scene);
     const renderCube = createCube(renderConfig.scene);
 
-    // Create camera rig in editor scene only (shows render camera position)
-    const cameraRig = createCameraRig(editorConfig.scene);
+    // Create camera indicator in editor scene only (shows render camera position)
+    const cameraIndicator = createCameraIndicator(editorConfig.scene);
 
     // Create and configure gizmo manager following reference pattern
     console.log('🔧 Creating GizmoManager...');
@@ -203,7 +203,7 @@ const initialize = (): void => {
         .getRenderingCanvas().id
     );
 
-    gizmoManager.attachableMeshes = [editorCube, cameraRig.coneIndicator]; // Cube and camera rig cone are draggable
+    gizmoManager.attachableMeshes = [editorCube, cameraIndicator.indicator]; // Cube and camera indicator are draggable
     gizmoManager.clearGizmoOnEmptyPointerEvent = true; // Auto-clear on empty click
     console.log('📦 EditorCube for gizmo:', editorCube);
 
@@ -233,7 +233,8 @@ const initialize = (): void => {
       if (gizmoManager.gizmos.positionGizmo) {
         console.log('🔧 Configuring position gizmo after delay...');
         gizmoManager.gizmos.positionGizmo.snapDistance = 1; // 1-unit grid
-        gizmoManager.gizmos.positionGizmo.yGizmo.isEnabled = false; // lock Y-move
+        // Y-axis movement is enabled for camera indicator, disabled for cube
+        gizmoManager.gizmos.positionGizmo.yGizmo.isEnabled = true;
         gizmoManager.gizmos.positionGizmo.updateGizmoRotationToMatchAttachedMesh = false; // world-aligned
         console.log('✅ Position gizmo configured with delay');
 
@@ -292,22 +293,22 @@ const initialize = (): void => {
             );
           }
         } else if (
-          attachedMesh === cameraRig.rigNode &&
-          cameraRig.rigNode.position
+          attachedMesh === cameraIndicator.indicator &&
+          cameraIndicator.indicator.position
         ) {
-          // Handle camera rig position constraints (rig selected directly)
+          // Handle camera indicator position constraints
           const constrained = applyPositionConstraints(
-            cameraRig.rigNode.position,
+            cameraIndicator.indicator.position,
             1,
             8
           );
-          cameraRig.rigNode.position.copyFrom(constrained);
+          cameraIndicator.indicator.position.copyFrom(constrained);
 
           // Update transform state
           transformState = updateObjectPosition(
             transformState,
-            'cameraRig',
-            cameraRig.rigNode.position
+            'cameraIndicator',
+            cameraIndicator.indicator.position
           );
           
           // Sync render camera
@@ -347,22 +348,21 @@ const initialize = (): void => {
             );
           }
         } else if (
-          attachedMesh === cameraRig.rigNode &&
-          cameraRig.pivotNode.rotation
+          attachedMesh === cameraIndicator.indicator &&
+          cameraIndicator.indicator.rotation
         ) {
-          // Handle camera rig rotation constraints (Y-axis only)
-          // Apply Y rotation to pivot, not rig (matches reference behavior)
+          // Handle camera indicator rotation constraints (Y-axis only)
           const constrained = applyRotationConstraints(
-            cameraRig.pivotNode.rotation,
+            cameraIndicator.indicator.rotation,
             15
           );
-          cameraRig.pivotNode.rotation.copyFrom(constrained);
+          cameraIndicator.indicator.rotation.copyFrom(constrained);
 
           // Update transform state
           transformState = updateObjectRotation(
             transformState,
-            'cameraRig',
-            cameraRig.pivotNode.rotation
+            'cameraIndicator',
+            cameraIndicator.indicator.rotation
           );
           
           // Sync render camera
@@ -376,6 +376,13 @@ const initialize = (): void => {
       if (gizmoManager.gizmos.positionGizmo) {
         // Hide rays on drag start, show on drag end (for cube only)
         gizmoManager.gizmos.positionGizmo.xGizmo.dragBehavior.onDragStartObservable.add(
+          () => {
+            if (gizmoManager.attachedMesh === editorCube && rayManager) {
+              rayManager = hideRays(rayManager);
+            }
+          }
+        );
+        gizmoManager.gizmos.positionGizmo.yGizmo.dragBehavior.onDragStartObservable.add(
           () => {
             if (gizmoManager.attachedMesh === editorCube && rayManager) {
               rayManager = hideRays(rayManager);
@@ -403,6 +410,19 @@ const initialize = (): void => {
             }
           }
         );
+        gizmoManager.gizmos.positionGizmo.yGizmo.dragBehavior.onDragEndObservable.add(
+          () => {
+            if (gizmoManager.attachedMesh === editorCube && rayManager) {
+              rayManager = showRays(rayManager);
+              rayManager = updateRays(
+                rayManager,
+                editorCube.position,
+                editorCube.getWorldMatrix(),
+                { count: uiState.rayCount, maxBounces: uiState.maxBounces }
+              );
+            }
+          }
+        );
         gizmoManager.gizmos.positionGizmo.zGizmo.dragBehavior.onDragEndObservable.add(
           () => {
             if (gizmoManager.attachedMesh === editorCube && rayManager) {
@@ -418,6 +438,9 @@ const initialize = (): void => {
         );
 
         gizmoManager.gizmos.positionGizmo.xGizmo.dragBehavior.onDragObservable.add(
+          limitToRoom
+        );
+        gizmoManager.gizmos.positionGizmo.yGizmo.dragBehavior.onDragObservable.add(
           limitToRoom
         );
         gizmoManager.gizmos.positionGizmo.zGizmo.dragBehavior.onDragObservable.add(
@@ -488,12 +511,8 @@ const initialize = (): void => {
           // Attach gizmo to selected object
           const editorMesh = editorConfig.scene.getMeshByName(objectId);
           if (editorMesh && gizmoManager) {
-            // If camera cone clicked, attach gizmo to the rig instead (matches reference)
-            if (editorMesh === cameraRig.coneIndicator) {
-              gizmoManager.attachToMesh(cameraRig.rigNode as any);
-            } else {
-              gizmoManager.attachToMesh(editorMesh);
-            }
+            // Attach gizmo directly to the selected mesh
+            gizmoManager.attachToMesh(editorMesh);
           }
         } else {
           selectionState = clearSelection(selectionState);
@@ -518,6 +537,7 @@ const initialize = (): void => {
     // Also handle gizmo attachment changes (matches reference pattern)
     gizmoManager.onAttachedToMeshObservable.add((mesh) => {
       if (mesh === editorCube) {
+        // Cube selected - show rays and lock Y movement
         if (rayManager) {
           rayManager = showRays(rayManager);
           rayManager = updateRays(
@@ -527,21 +547,28 @@ const initialize = (): void => {
             { count: uiState.rayCount, maxBounces: uiState.maxBounces }
           );
         }
-      } else if (mesh === null || mesh === cameraRig.rigNode) {
+        if (gizmoManager.gizmos.positionGizmo) {
+          gizmoManager.gizmos.positionGizmo.yGizmo.isEnabled = false;
+        }
+      } else if (mesh === cameraIndicator.indicator) {
+        // Camera indicator selected - hide rays and allow Y movement
+        if (rayManager) {
+          rayManager = hideRays(rayManager);
+        }
+        if (gizmoManager.gizmos.positionGizmo) {
+          gizmoManager.gizmos.positionGizmo.yGizmo.isEnabled = true;
+        }
+      } else if (mesh === null) {
+        // Nothing selected
         if (rayManager) {
           rayManager = hideRays(rayManager);
         }
       }
     });
 
-    // Sync render camera with rig position
+    // Sync render camera with indicator position
     const syncRenderCamera = (): void => {
-      const transform = syncCameraWithRig(
-        cameraRig.rigNode.position,
-        cameraRig.pivotNode.rotation
-      );
-      renderCamera.position.copyFrom(transform.position);
-      renderCamera.rotation.copyFrom(transform.rotation);
+      syncCameraWithIndicator(renderCamera, cameraIndicator.indicator);
     };
 
     // Keep Y positions locked (matches reference behavior)
@@ -552,9 +579,7 @@ const initialize = (): void => {
       if (renderCube) {
         renderCube.position.y = 1; // Keep render cube synced
       }
-      if (cameraRig.rigNode) {
-        cameraRig.rigNode.position.y = 0; // Keep rig base on ground
-      }
+      // Camera indicator Y position is not locked - it can move freely
     };
 
     // Initial sync
@@ -687,21 +712,21 @@ const initialize = (): void => {
           );
         }
 
-        // Reset camera rig
-        if (cameraRig) {
-          cameraRig.rigNode.position.set(0, 0, -5);
-          cameraRig.pivotNode.rotation.set(0, 0, 0);
+        // Reset camera indicator
+        if (cameraIndicator) {
+          cameraIndicator.indicator.position.set(0, 5, -10);
+          cameraIndicator.indicator.rotation.set(0, 0, 0);
 
           // Update transform state
           transformState = updateObjectPosition(
             transformState,
-            'cameraRig',
-            cameraRig.rigNode.position
+            'cameraIndicator',
+            cameraIndicator.indicator.position
           );
           transformState = updateObjectRotation(
             transformState,
-            'cameraRig',
-            cameraRig.pivotNode.rotation
+            'cameraIndicator',
+            cameraIndicator.indicator.rotation
           );
 
           // Sync render camera
