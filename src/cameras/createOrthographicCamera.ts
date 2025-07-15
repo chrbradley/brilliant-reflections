@@ -2,6 +2,8 @@
 // ABOUTME: Returns configured camera looking down with proper orientation
 
 import { UniversalCamera, Vector3, Scene } from 'babylonjs';
+import { applyLayerMaskToCamera } from '../utils/applyLayerMask';
+import { EDITOR_CAMERA_MASK } from '../constants/layerMasks';
 
 /**
  * Creates camera position for top-down view
@@ -67,6 +69,9 @@ export const createOrthographicCamera = (
 
   // Configure orientation
   configureCameraOrientation(camera);
+
+  // Apply editor layer mask so camera sees both render and editor objects
+  applyLayerMaskToCamera(camera, EDITOR_CAMERA_MASK);
 
   return camera;
 };

@@ -2,6 +2,7 @@
 // ABOUTME: Returns configured cube mesh for manipulation and ray visualization
 
 import { MeshBuilder, Scene, Mesh, Color4, Vector3 } from 'babylonjs';
+import { markAsRenderable } from '../utils/applyLayerMask';
 
 /**
  * Rubik's-style face colors
@@ -69,6 +70,9 @@ export const createCube = (
   cube.enableEdgesRendering();
   cube.edgesWidth = 4.0;
   cube.edgesColor = new Color4(0, 0, 0, 1); // Black edges
+
+  // Mark as renderable so it appears in both views
+  markAsRenderable(cube);
 
   return cube;
 };

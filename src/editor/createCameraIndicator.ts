@@ -9,6 +9,7 @@ import {
   Color3,
   Vector3,
 } from 'babylonjs';
+import { markAsEditorOnly } from '../utils/applyLayerMask';
 
 /**
  * Camera indicator configuration
@@ -49,6 +50,9 @@ const createIndicatorBox = (scene: Scene): Mesh => {
 
   // Make it pickable for gizmo interaction
   box.isPickable = true;
+
+  // Mark as editor-only so it doesn't appear in render view
+  markAsEditorOnly(box);
 
   return box;
 };

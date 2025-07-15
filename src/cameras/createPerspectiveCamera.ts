@@ -2,6 +2,8 @@
 // ABOUTME: Returns configured camera with appropriate FOV and position
 
 import { UniversalCamera, Vector3, Scene } from 'babylonjs';
+import { applyLayerMaskToCamera } from '../utils/applyLayerMask';
+import { RENDER_CAMERA_MASK } from '../constants/layerMasks';
 
 /**
  * Creates camera position for perspective view
@@ -58,6 +60,9 @@ export const createPerspectiveCamera = (
 
   // Configure perspective settings
   configurePerspectiveSettings(camera);
+
+  // Apply render layer mask so camera only sees render objects
+  applyLayerMaskToCamera(camera, RENDER_CAMERA_MASK);
 
   return camera;
 };

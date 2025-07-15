@@ -12,6 +12,7 @@ import {
 } from 'babylonjs';
 import { ROOM_SIZE, WALL_THICKNESS, ROOM_HALF, WALL_NAMES } from '../constants';
 import { createMatteMaterial } from '../materials/createMatteMaterial';
+import { markAsRenderable } from '../utils/applyLayerMask';
 
 /**
  * Position configuration
@@ -151,6 +152,9 @@ export const createFloor = (scene: Scene): Mesh => {
   floor.material = floorMat;
   floor.isPickable = false; // Room geometry should not be selectable
 
+  // Mark as renderable so it appears in both views
+  markAsRenderable(floor);
+
   return floor;
 };
 
@@ -174,6 +178,9 @@ export const createCeiling = (scene: Scene): Mesh => {
 
   // Flip ceiling to face downward
   ceiling.rotation.x = Math.PI;
+
+  // Mark as renderable so it appears in both views
+  markAsRenderable(ceiling);
 
   return ceiling;
 };
@@ -225,6 +232,9 @@ export const createWall = (
     });
   }
   wall.isPickable = false; // Room geometry should not be selectable
+
+  // Mark as renderable so it appears in both views
+  markAsRenderable(wall);
 
   return wall;
 };
