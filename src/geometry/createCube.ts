@@ -1,16 +1,7 @@
 // ABOUTME: Pure function to create the interactive cube with Rubik's-style face colors
 // ABOUTME: Returns configured cube mesh for manipulation and ray visualization
 
-import { MeshBuilder, Scene, Mesh, Color4 } from 'babylonjs';
-
-/**
- * Position configuration
- */
-interface Position {
-  x: number;
-  y: number;
-  z: number;
-}
+import { MeshBuilder, Scene, Mesh, Color4, Vector3 } from 'babylonjs';
 
 /**
  * Rubik's-style face colors
@@ -31,15 +22,6 @@ export const CUBE_FACE_COLORS = {
 const CUBE_SIZE = 2;
 
 /**
- * Default position (1 unit above ground, 3 units forward)
- */
-const DEFAULT_POSITION: Position = {
-  x: 0,
-  y: 1,
-  z: 3,
-};
-
-/**
  * Creates face color array in Babylon.js order
  */
 const createFaceColors = (): Color4[] => {
@@ -58,12 +40,14 @@ const createFaceColors = (): Color4[] => {
  * Creates and configures the interactive cube
  *
  * @param scene - The scene to add the cube to
- * @param position - Optional position (defaults to 1 unit above origin)
+ * @param position - Initial position vector
+ * @param rotation - Initial rotation vector
  * @returns Configured cube mesh
  */
 export const createCube = (
   scene: Scene,
-  position: Position = DEFAULT_POSITION
+  position: Vector3,
+  rotation: Vector3
 ): Mesh => {
   const cube = MeshBuilder.CreateBox(
     'colorCube',
@@ -74,10 +58,9 @@ export const createCube = (
     scene
   );
 
-  // Set position
-  cube.position.x = position.x;
-  cube.position.y = position.y;
-  cube.position.z = position.z;
+  // Set position and rotation
+  cube.position.copyFrom(position);
+  cube.rotation.copyFrom(rotation);
 
   // Make cube pickable for interaction
   cube.isPickable = true;

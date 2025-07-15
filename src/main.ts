@@ -12,6 +12,7 @@ import { createCube } from './geometry/createCube';
 import { createCameraIndicator } from './editor/createCameraIndicator';
 import { syncCameraWithIndicator } from './render/syncCameraWithIndicator';
 import { createAmbientLight } from './lighting/createLighting';
+import { createInitialStateConfig } from './config/initialState';
 import {
   createInitialSelectionState,
   selectObject,
@@ -174,12 +175,28 @@ const initialize = (): void => {
       }
     }
 
+    // Get initial state configuration
+    const initialState = createInitialStateConfig();
+
     // Create the interactive cube in both scenes
-    const editorCube = createCube(editorConfig.scene);
-    const renderCube = createCube(renderConfig.scene);
+    const editorCube = createCube(
+      editorConfig.scene,
+      initialState.cube.position,
+      initialState.cube.rotation
+    );
+    const renderCube = createCube(
+      renderConfig.scene,
+      initialState.cube.position,
+      initialState.cube.rotation
+    );
 
     // Create camera indicator in editor scene only (shows render camera position)
-    const cameraIndicator = createCameraIndicator(editorConfig.scene);
+    const cameraIndicator = createCameraIndicator(
+      editorConfig.scene,
+      initialState.cameraIndicator.position,
+      initialState.cameraIndicator.rotation,
+      initialState.cube.position // Look at cube position
+    );
 
     // Create and configure gizmo manager following reference pattern
     console.log('🔧 Creating GizmoManager...');
@@ -310,7 +327,7 @@ const initialize = (): void => {
             'cameraIndicator',
             cameraIndicator.indicator.position
           );
-          
+
           // Sync render camera
           syncRenderCamera();
         }
@@ -364,7 +381,7 @@ const initialize = (): void => {
             'cameraIndicator',
             cameraIndicator.indicator.rotation
           );
-          
+
           // Sync render camera
           syncRenderCamera();
         }
@@ -574,10 +591,10 @@ const initialize = (): void => {
     // Keep Y positions locked (matches reference behavior)
     const lockYPositions = (): void => {
       if (editorCube) {
-        editorCube.position.y = 1; // Keep cube 1 unit above ground
+        editorCube.position.y = initialState.cube.position.y; // Keep cube at initial Y
       }
       if (renderCube) {
-        renderCube.position.y = 1; // Keep render cube synced
+        renderCube.position.y = initialState.cube.position.y; // Keep render cube synced
       }
       // Camera indicator Y position is not locked - it can move freely
     };
@@ -656,12 +673,15 @@ const initialize = (): void => {
 
         // Apply quality settings to mirror textures
         if (renderConfig) {
-          const mirrorSize = value === 'low' ? 256 : value === 'medium' ? 512 : 1024;
-          
+          const mirrorSize =
+            value === 'low' ? 256 : value === 'medium' ? 512 : 1024;
+
           // Update all mirror texture sizes
-          renderConfig.scene.materials.forEach(material => {
-            if (material instanceof BABYLON.StandardMaterial && 
-                material.reflectionTexture instanceof BABYLON.MirrorTexture) {
+          renderConfig.scene.materials.forEach((material) => {
+            if (
+              material instanceof BABYLON.StandardMaterial &&
+              material.reflectionTexture instanceof BABYLON.MirrorTexture
+            ) {
               const oldTexture = material.reflectionTexture;
               const newTexture = new BABYLON.MirrorTexture(
                 oldTexture.name,
@@ -692,12 +712,12 @@ const initialize = (): void => {
           bouncesValue.textContent = uiState.maxBounces.toString();
         qualitySelect.value = uiState.quality;
 
-        // Reset cube position and rotation
+        // Reset cube position and rotation using initial state
         if (editorCube && renderCube) {
-          editorCube.position.set(0, 1, 0);
-          editorCube.rotation.set(0, 0, 0);
-          renderCube.position.copyFrom(editorCube.position);
-          renderCube.rotation.copyFrom(editorCube.rotation);
+          editorCube.position.copyFrom(initialState.cube.position);
+          editorCube.rotation.copyFrom(initialState.cube.rotation);
+          renderCube.position.copyFrom(initialState.cube.position);
+          renderCube.rotation.copyFrom(initialState.cube.rotation);
 
           // Update transform state
           transformState = updateObjectPosition(
@@ -712,13 +732,19 @@ const initialize = (): void => {
           );
         }
 
-        // Reset camera indicator
+        // Reset camera indicator using initial state
         if (cameraIndicator) {
-          cameraIndicator.indicator.position.set(0, 5, -10);
-          
-          // Re-orient to look at origin
-          cameraIndicator.indicator.lookAt(new Vector3(0, 0, 0));
-          cameraIndicator.indicator.rotation.y += Math.PI;
+          cameraIndicator.indicator.position.copyFrom(
+            initialState.cameraIndicator.position
+          );
+
+          // Re-orient to look at cube
+          cameraIndicator.indicator.lookAt(initialState.cube.position);
+
+          // Apply any additional rotation from config
+          cameraIndicator.indicator.rotation.copyFrom(
+            initialState.cameraIndicator.rotation
+          );
 
           // Update transform state
           transformState = updateObjectPosition(
@@ -746,13 +772,19 @@ const initialize = (): void => {
 
         // Apply quality settings to mirror textures
         if (renderConfig) {
-          const mirrorSize = uiState.quality === 'low' ? 256 : 
-                            uiState.quality === 'medium' ? 512 : 1024;
-          
+          const mirrorSize =
+            uiState.quality === 'low'
+              ? 256
+              : uiState.quality === 'medium'
+                ? 512
+                : 1024;
+
           // Update all mirror texture sizes
-          renderConfig.scene.materials.forEach(material => {
-            if (material instanceof BABYLON.StandardMaterial && 
-                material.reflectionTexture instanceof BABYLON.MirrorTexture) {
+          renderConfig.scene.materials.forEach((material) => {
+            if (
+              material instanceof BABYLON.StandardMaterial &&
+              material.reflectionTexture instanceof BABYLON.MirrorTexture
+            ) {
               const oldTexture = material.reflectionTexture;
               const newTexture = new BABYLON.MirrorTexture(
                 oldTexture.name,
@@ -781,7 +813,7 @@ const initialize = (): void => {
     editorConfig.engine.runRenderLoop(() => {
       // Keep Y positions locked before each render
       lockYPositions();
-      
+
       // Sync render camera with rig position
       syncRenderCamera();
 
