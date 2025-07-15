@@ -747,6 +747,10 @@ const initialize = (): void => {
         if (rayManager) {
           rayManager = hideRays(rayManager);
         }
+        // Remove highlight from render scene when nothing is selected
+        if (selectionState.selectedObjectId) {
+          removeHighlight(renderConfig.scene, selectionState.selectedObjectId);
+        }
         // Keep instances visible
       }
     });
