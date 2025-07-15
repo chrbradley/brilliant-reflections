@@ -33,7 +33,8 @@ const createColor3 = (color: MaterialColor): Color3 => {
  */
 const configureMatteSurface = (
   material: StandardMaterial,
-  color: MaterialColor
+  color: MaterialColor,
+  alpha: number = 1
 ): void => {
   // Set diffuse color
   material.diffuseColor = createColor3(color);
@@ -42,8 +43,15 @@ const configureMatteSurface = (
   material.specularColor = new Color3(0.05, 0.05, 0.05);
   material.specularPower = 1;
 
-  // Ensure material is opaque
-  material.alpha = 1;
+  // Set transparency
+  material.alpha = alpha;
+  
+  // If highly transparent, reduce diffuse contribution
+  if (alpha < 0.1) {
+    material.diffuseColor = new Color3(0, 0, 0);
+    material.emissiveColor = new Color3(0, 0, 0);
+    material.specularColor = new Color3(0, 0, 0);
+  }
 };
 
 /**
@@ -52,16 +60,18 @@ const configureMatteSurface = (
  * @param name - The name for the material
  * @param scene - The scene to add the material to
  * @param color - Optional color configuration (defaults to gray)
+ * @param alpha - Optional transparency value (defaults to 1.0 for opaque)
  * @returns Configured matte material
  */
 export const createMatteMaterial = (
   name: string,
   scene: Scene,
-  color: MaterialColor = DEFAULT_MATTE_COLOR
+  color: MaterialColor = DEFAULT_MATTE_COLOR,
+  alpha: number = 1
 ): StandardMaterial => {
   const material = new StandardMaterial(name, scene);
 
-  configureMatteSurface(material, color);
+  configureMatteSurface(material, color, alpha);
 
   return material;
 };

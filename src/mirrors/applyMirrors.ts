@@ -56,9 +56,11 @@ export const createMirrorMaterial = (
     material.reflectionTexture.level = 1; // Full reflection
     
     // Make reflections more vivid
-    material.diffuseColor = new Color3(0.1, 0.1, 0.1); // Very dark diffuse so reflection dominates
-    material.specularColor = new Color3(1, 1, 1); // Bright specular for shininess
+    material.diffuseColor = new Color3(0, 0, 0); // No diffuse color for clear walls
+    material.specularColor = new Color3(0, 0, 0); // No specular for clear walls
+    material.emissiveColor = new Color3(0, 0, 0); // No emissive
     material.specularPower = 64; // Higher value = more focused reflections
+    material.alpha = 0.01; // 99% transparent (1% opacity)
   } catch (e) {
     // In test environment, WebGL context may not be available
     // Return material without mirror texture

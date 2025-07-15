@@ -225,14 +225,14 @@ export const createWall = (
       r: 0.55,
       g: 0.55,
       b: 0.75,
-    });
+    }, 0.01); // 99% transparent (1% opacity)
   } else {
     // Standard grey for non-reflective walls
     wall.material = createMatteMaterial(`${name}Material`, scene, {
       r: 0.65,
       g: 0.65,
       b: 0.65,
-    });
+    }, 0.01); // 99% transparent (1% opacity)
   }
   wall.isPickable = false; // Room geometry should not be selectable
   

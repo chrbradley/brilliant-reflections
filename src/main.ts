@@ -175,15 +175,17 @@ const initialize = (): void => {
       initialState.cube.rotation
     );
 
-    // Test: Make all walls transparent so we can see mirror instances
+    // Make all walls 99% transparent (clear)
     const wallNames = ['northWall', 'southWall', 'eastWall', 'westWall'];
     wallNames.forEach(wallName => {
       const wall = renderConfig.scene.getMeshByName(wallName);
       if (wall && wall instanceof BABYLON.Mesh) {
         const transparentMaterial = new BABYLON.StandardMaterial(`${wallName}Transparent`, renderConfig.scene);
-        transparentMaterial.alpha = 0.3;
+        transparentMaterial.alpha = 0.01; // 99% transparent
         transparentMaterial.backFaceCulling = false;
-        transparentMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8);
+        transparentMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0); // No color contribution
+        transparentMaterial.specularColor = new BABYLON.Color3(0, 0, 0); // No specular
+        transparentMaterial.emissiveColor = new BABYLON.Color3(0, 0, 0); // No emissive
         wall.material = transparentMaterial;
       }
     });
