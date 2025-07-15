@@ -1,7 +1,7 @@
 // ABOUTME: Creates a simple box indicator to show camera position and orientation
 // ABOUTME: The elongated dimension points in the camera's viewing direction
 
-import { MeshBuilder, Scene, Mesh, StandardMaterial, Color3 } from 'babylonjs';
+import { MeshBuilder, Scene, Mesh, StandardMaterial, Color3, Vector3 } from 'babylonjs';
 
 /**
  * Camera indicator configuration
@@ -66,8 +66,13 @@ export const createCameraIndicator = (
     initialPosition.z
   );
   
-  // No rotation needed - the box naturally points along +Z
-  // which is the camera's default viewing direction
+  // The box needs to look at the origin (where the cube is)
+  // We'll use lookAt to orient it correctly
+  indicator.lookAt(new Vector3(0, 0, 0));
+  
+  // lookAt makes -Z face the target, but we want +Z to be the viewing direction
+  // So we need to rotate 180 degrees around Y
+  indicator.rotation.y += Math.PI;
   
   return {
     indicator
