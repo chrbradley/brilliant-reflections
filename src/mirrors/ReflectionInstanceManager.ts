@@ -194,7 +194,7 @@ export class ReflectionInstanceManager {
         this.instances.set(path.id, instance);
         
         // Add instance to glow layer if available
-        if (this.glowLayer && sourceMesh.name === 'colorCube') {
+        if (this.glowLayer && sourceMesh.name === 'colorSphere') {
           this.glowLayer.addIncludedOnlyMesh(instance);
         }
       }

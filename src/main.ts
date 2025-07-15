@@ -8,7 +8,7 @@ import { createOrthographicCamera } from './cameras/createOrthographicCamera';
 import { createPerspectiveCamera } from './cameras/createPerspectiveCamera';
 import { attachCamera } from './cameras/attachCamera';
 import { createRoom } from './geometry/createRoom';
-import { createCube } from './geometry/createCube';
+import { createSphere } from './geometry/createSphere';
 import { createCameraIndicator } from './editor/createCameraIndicator';
 import { syncCameraWithIndicator } from './render/syncCameraWithIndicator';
 import { createAmbientLight } from './lighting/createLighting';
@@ -35,7 +35,6 @@ import {
   UtilityLayerRenderer,
   Vector3,
   TransformNode,
-  GlowLayer,
 } from 'babylonjs';
 import * as BABYLON from 'babylonjs';
 import type { SceneConfig } from './types';
@@ -82,7 +81,6 @@ let rayManager: RayManager | null = null;
 let renderPassManager: RenderPassManager | null = null;
 let cubeReflectionManager: ReflectionInstanceManager | null = null;
 let groundReflectionManager: ReflectionInstanceManager | null = null;
-let glowLayer: GlowLayer | null = null;
 let unbindFunctions: Array<() => void> = [];
 
 /**
@@ -112,10 +110,6 @@ const cleanup = (): void => {
   if (gizmoManager) {
     gizmoManager.dispose();
     gizmoManager = null;
-  }
-  if (glowLayer) {
-    glowLayer.dispose();
-    glowLayer = null;
   }
   if (editorConfig) {
     editorConfig.dispose();
@@ -167,32 +161,19 @@ const initialize = (): void => {
     // Get initial state configuration
     const initialState = createInitialStateConfig();
 
-    // Create the interactive cube in both scenes (before mirrors so it's included in render lists)
-    const editorCube = createCube(
+    // Create the interactive sphere in both scenes (before mirrors so it's included in render lists)
+    const editorSphere = createSphere(
       editorConfig.scene,
       initialState.cube.position,
       initialState.cube.rotation
     );
-    const renderCube = createCube(
+    const renderSphere = createSphere(
       renderConfig.scene,
       initialState.cube.position,
       initialState.cube.rotation
     );
 
-    // Add material with emissive properties for glow effect
-    const glowMaterial = new BABYLON.StandardMaterial('cubeMaterial', renderConfig.scene);
-    glowMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8);
-    glowMaterial.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3); // Subtle emissive for glow
-    glowMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-    renderCube.material = glowMaterial;
 
-    // Turn off edge rendering for cleaner glow effect
-    renderCube.disableEdgesRendering();
-
-    // Add subtle glow to the render cube
-    glowLayer = new GlowLayer('glow', renderConfig.scene);
-    glowLayer.intensity = 1.2; // Higher intensity for better visibility
-    glowLayer.addIncludedOnlyMesh(renderCube);
 
 
     // Initialize reflection instance managers
@@ -202,8 +183,7 @@ const initialize = (): void => {
         north: { position: 10, normal: new Vector3(0, 0, -1) },
         east: { position: 10, normal: new Vector3(-1, 0, 0) },
         west: { position: -10, normal: new Vector3(1, 0, 0) }
-      },
-      glowLayer: glowLayer
+      }
     });
     
     const floor = renderConfig.scene.getMeshByName('floor');
@@ -237,9 +217,9 @@ const initialize = (): void => {
     // Helper function to update instance positions
     const updateInstancePositions = () => {
       cubeReflectionManager.updateInstances(
-        renderCube,
-        renderCube.position,
-        renderCube.rotation,
+        renderSphere,
+        renderSphere.position,
+        renderSphere.rotation,
         uiState.maxBounces
       );
       
@@ -334,13 +314,13 @@ const initialize = (): void => {
         .getRenderingCanvas().id
     );
 
-    gizmoManager.attachableMeshes = [editorCube, cameraIndicator.indicator]; // Cube and camera indicator are draggable
+    gizmoManager.attachableMeshes = [editorSphere, cameraIndicator.indicator]; // Sphere and camera indicator are draggable
     gizmoManager.clearGizmoOnEmptyPointerEvent = true; // Auto-clear on empty click
-    console.log('📦 EditorCube for gizmo:', editorCube);
+    console.log('📦 EditorCube for gizmo:', editorSphere);
 
     // Bootstrap once so gizmo sub-objects exist
-    console.log('🔗 Attaching to editorCube...');
-    gizmoManager.attachToMesh(editorCube);
+    console.log('🔗 Attaching to editorSphere...');
+    gizmoManager.attachToMesh(editorSphere);
     console.log('✅ Attached mesh:', gizmoManager.attachedMesh);
 
     // ── TRANSLATE ── (following exact reference pattern)
@@ -393,36 +373,36 @@ const initialize = (): void => {
       if (gizmoManager?.attachedMesh) {
         const attachedMesh = gizmoManager.attachedMesh;
 
-        if (attachedMesh === editorCube && editorCube.position) {
+        if (attachedMesh === editorSphere && editorSphere.position) {
           // Handle cube position constraints
           const constrained = applyPositionConstraints(
-            editorCube.position,
+            editorSphere.position,
             1,
             8
           );
-          editorCube.position.copyFrom(constrained);
+          editorSphere.position.copyFrom(constrained);
 
           // Update transform state
           transformState = updateObjectPosition(
             transformState,
-            'colorCube',
-            editorCube.position
+            'colorSphere',
+            editorSphere.position
           );
 
           // Sync to render scene
-          if (renderCube.position) {
-            renderCube.position.copyFrom(editorCube.position);
+          if (renderSphere.position) {
+            renderSphere.position.copyFrom(editorSphere.position);
           }
           
           // Update instance positions in case of constraint changes
           updateInstancePositions();
 
           // Update rays if cube is selected
-          if (rayManager && selectionState.selectedObjectId === 'colorCube') {
+          if (rayManager && selectionState.selectedObjectId === 'colorSphere') {
             rayManager = updateRays(
               rayManager,
-              editorCube.position,
-              editorCube.getWorldMatrix(),
+              editorSphere.position,
+              editorSphere.getWorldMatrix(),
               { count: uiState.rayCount, maxBounces: uiState.maxBounces }
             );
           }
@@ -455,32 +435,32 @@ const initialize = (): void => {
       if (gizmoManager?.attachedMesh) {
         const attachedMesh = gizmoManager.attachedMesh;
 
-        if (attachedMesh === editorCube && editorCube.rotation) {
+        if (attachedMesh === editorSphere && editorSphere.rotation) {
           // Handle cube rotation constraints
-          const constrained = applyRotationConstraints(editorCube.rotation, 15);
-          editorCube.rotation.copyFrom(constrained);
+          const constrained = applyRotationConstraints(editorSphere.rotation, 15);
+          editorSphere.rotation.copyFrom(constrained);
 
           // Update transform state
           transformState = updateObjectRotation(
             transformState,
-            'colorCube',
-            editorCube.rotation
+            'colorSphere',
+            editorSphere.rotation
           );
 
           // Sync to render scene
-          if (renderCube.rotation) {
-            renderCube.rotation.copyFrom(editorCube.rotation);
+          if (renderSphere.rotation) {
+            renderSphere.rotation.copyFrom(editorSphere.rotation);
           }
           
           // Update instance rotations in case of constraint changes
           updateInstancePositions();
 
           // Update rays if cube is selected
-          if (rayManager && selectionState.selectedObjectId === 'colorCube') {
+          if (rayManager && selectionState.selectedObjectId === 'colorSphere') {
             rayManager = updateRays(
               rayManager,
-              editorCube.position,
-              editorCube.getWorldMatrix(),
+              editorSphere.position,
+              editorSphere.getWorldMatrix(),
               { count: uiState.rayCount, maxBounces: uiState.maxBounces }
             );
           }
@@ -514,7 +494,7 @@ const initialize = (): void => {
         // Hide rays and instances on drag start (for cube only)
         gizmoManager.gizmos.positionGizmo.xGizmo.dragBehavior.onDragStartObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube) {
+            if (gizmoManager.attachedMesh === editorSphere) {
               if (rayManager) {
                 rayManager = hideRays(rayManager);
               }
@@ -524,7 +504,7 @@ const initialize = (): void => {
         );
         gizmoManager.gizmos.positionGizmo.yGizmo.dragBehavior.onDragStartObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube) {
+            if (gizmoManager.attachedMesh === editorSphere) {
               if (rayManager) {
                 rayManager = hideRays(rayManager);
               }
@@ -534,7 +514,7 @@ const initialize = (): void => {
         );
         gizmoManager.gizmos.positionGizmo.zGizmo.dragBehavior.onDragStartObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube) {
+            if (gizmoManager.attachedMesh === editorSphere) {
               if (rayManager) {
                 rayManager = hideRays(rayManager);
               }
@@ -545,13 +525,13 @@ const initialize = (): void => {
 
         gizmoManager.gizmos.positionGizmo.xGizmo.dragBehavior.onDragEndObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube) {
+            if (gizmoManager.attachedMesh === editorSphere) {
               if (rayManager) {
                 rayManager = showRays(rayManager);
                 rayManager = updateRays(
                   rayManager,
-                  editorCube.position,
-                  editorCube.getWorldMatrix(),
+                  editorSphere.position,
+                  editorSphere.getWorldMatrix(),
                   { count: uiState.rayCount, maxBounces: uiState.maxBounces }
                 );
               }
@@ -562,13 +542,13 @@ const initialize = (): void => {
         );
         gizmoManager.gizmos.positionGizmo.yGizmo.dragBehavior.onDragEndObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube) {
+            if (gizmoManager.attachedMesh === editorSphere) {
               if (rayManager) {
                 rayManager = showRays(rayManager);
                 rayManager = updateRays(
                   rayManager,
-                  editorCube.position,
-                  editorCube.getWorldMatrix(),
+                  editorSphere.position,
+                  editorSphere.getWorldMatrix(),
                   { count: uiState.rayCount, maxBounces: uiState.maxBounces }
                 );
               }
@@ -579,13 +559,13 @@ const initialize = (): void => {
         );
         gizmoManager.gizmos.positionGizmo.zGizmo.dragBehavior.onDragEndObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube) {
+            if (gizmoManager.attachedMesh === editorSphere) {
               if (rayManager) {
                 rayManager = showRays(rayManager);
                 rayManager = updateRays(
                   rayManager,
-                  editorCube.position,
-                  editorCube.getWorldMatrix(),
+                  editorSphere.position,
+                  editorSphere.getWorldMatrix(),
                   { count: uiState.rayCount, maxBounces: uiState.maxBounces }
                 );
               }
@@ -615,7 +595,7 @@ const initialize = (): void => {
         // Hide rays and instances during rotation drag
         gizmoManager.gizmos.rotationGizmo.yGizmo.dragBehavior.onDragStartObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube) {
+            if (gizmoManager.attachedMesh === editorSphere) {
               if (rayManager) {
                 rayManager = hideRays(rayManager);
               }
@@ -627,13 +607,13 @@ const initialize = (): void => {
         // Show and update rays and instances after rotation
         gizmoManager.gizmos.rotationGizmo.yGizmo.dragBehavior.onDragEndObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube) {
+            if (gizmoManager.attachedMesh === editorSphere) {
               if (rayManager) {
                 rayManager = showRays(rayManager);
                 rayManager = updateRays(
                   rayManager,
-                  editorCube.position,
-                  editorCube.getWorldMatrix(),
+                  editorSphere.position,
+                  editorSphere.getWorldMatrix(),
                   { count: uiState.rayCount, maxBounces: uiState.maxBounces }
                 );
               }
@@ -702,14 +682,14 @@ const initialize = (): void => {
 
     // Also handle gizmo attachment changes (matches reference pattern)
     gizmoManager.onAttachedToMeshObservable.add((mesh) => {
-      if (mesh === editorCube) {
+      if (mesh === editorSphere) {
         // Cube selected - show rays and instances, lock Y movement
         if (rayManager) {
           rayManager = showRays(rayManager);
           rayManager = updateRays(
             rayManager,
-            editorCube.position,
-            editorCube.getWorldMatrix(),
+            editorSphere.position,
+            editorSphere.getWorldMatrix(),
             { count: uiState.rayCount, maxBounces: uiState.maxBounces }
           );
         }
@@ -746,11 +726,11 @@ const initialize = (): void => {
 
     // Keep Y positions locked (matches reference behavior)
     const lockYPositions = (): void => {
-      if (editorCube) {
-        editorCube.position.y = initialState.cube.position.y; // Keep cube at initial Y
+      if (editorSphere) {
+        editorSphere.position.y = initialState.cube.position.y; // Keep sphere at initial Y
       }
-      if (renderCube) {
-        renderCube.position.y = initialState.cube.position.y; // Keep render cube synced
+      if (renderSphere) {
+        renderSphere.position.y = initialState.cube.position.y; // Keep render sphere synced
       }
       // Camera indicator Y position is not locked - it can move freely
     };
@@ -786,13 +766,13 @@ const initialize = (): void => {
         // Update rays if cube is selected
         if (
           rayManager &&
-          selectionState.selectedObjectId === 'colorCube' &&
-          editorCube
+          selectionState.selectedObjectId === 'colorSphere' &&
+          editorSphere
         ) {
           rayManager = updateRays(
             rayManager,
-            editorCube.position,
-            editorCube.getWorldMatrix(),
+            editorSphere.position,
+            editorSphere.getWorldMatrix(),
             { count: uiState.rayCount, maxBounces: uiState.maxBounces }
           );
         }
@@ -814,13 +794,13 @@ const initialize = (): void => {
         // Update rays if cube is selected
         if (
           rayManager &&
-          selectionState.selectedObjectId === 'colorCube' &&
-          editorCube
+          selectionState.selectedObjectId === 'colorSphere' &&
+          editorSphere
         ) {
           rayManager = updateRays(
             rayManager,
-            editorCube.position,
-            editorCube.getWorldMatrix(),
+            editorSphere.position,
+            editorSphere.getWorldMatrix(),
             { count: uiState.rayCount, maxBounces: uiState.maxBounces }
           );
         }
@@ -844,22 +824,22 @@ const initialize = (): void => {
           bouncesValue.textContent = uiState.maxBounces.toString();
 
         // Reset cube position and rotation using initial state
-        if (editorCube && renderCube) {
-          editorCube.position.copyFrom(initialState.cube.position);
-          editorCube.rotation.copyFrom(initialState.cube.rotation);
-          renderCube.position.copyFrom(initialState.cube.position);
-          renderCube.rotation.copyFrom(initialState.cube.rotation);
+        if (editorSphere && renderSphere) {
+          editorSphere.position.copyFrom(initialState.cube.position);
+          editorSphere.rotation.copyFrom(initialState.cube.rotation);
+          renderSphere.position.copyFrom(initialState.cube.position);
+          renderSphere.rotation.copyFrom(initialState.cube.rotation);
 
           // Update transform state
           transformState = updateObjectPosition(
             transformState,
-            'colorCube',
-            editorCube.position
+            'colorSphere',
+            editorSphere.position
           );
           transformState = updateObjectRotation(
             transformState,
-            'colorCube',
-            editorCube.rotation
+            'colorSphere',
+            editorSphere.rotation
           );
         }
 
@@ -897,7 +877,7 @@ const initialize = (): void => {
         handleSelection(null);
 
         // Update rays if needed
-        if (rayManager && editorCube) {
+        if (rayManager && editorSphere) {
           rayManager = hideRays(rayManager);
         }
         
