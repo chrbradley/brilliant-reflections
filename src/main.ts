@@ -309,6 +309,9 @@ const initialize = (): void => {
             'cameraRig',
             cameraRig.rigNode.position
           );
+          
+          // Sync render camera
+          syncRenderCamera();
         }
       }
     };
@@ -361,6 +364,9 @@ const initialize = (): void => {
             'cameraRig',
             cameraRig.pivotNode.rotation
           );
+          
+          // Sync render camera
+          syncRenderCamera();
         }
       }
     };
@@ -623,12 +629,27 @@ const initialize = (): void => {
       const unbindQuality = bindDropdownToState(qualitySelect, (value) => {
         uiState = updateQuality(uiState, value as QualityLevel);
 
-        // Apply quality settings to render engine
+        // Apply quality settings to mirror textures
         if (renderConfig) {
-          const scale = value === 'low' ? 0.5 : value === 'medium' ? 0.75 : 1.0;
-          const newWidth = Math.floor(renderCanvas.clientWidth * scale);
-          const newHeight = Math.floor(renderCanvas.clientHeight * scale);
-          renderConfig.engine.setSize(newWidth, newHeight);
+          const mirrorSize = value === 'low' ? 256 : value === 'medium' ? 512 : 1024;
+          
+          // Update all mirror texture sizes
+          renderConfig.scene.materials.forEach(material => {
+            if (material instanceof BABYLON.StandardMaterial && 
+                material.reflectionTexture instanceof BABYLON.MirrorTexture) {
+              const oldTexture = material.reflectionTexture;
+              const newTexture = new BABYLON.MirrorTexture(
+                oldTexture.name,
+                mirrorSize,
+                renderConfig.scene,
+                true
+              );
+              newTexture.mirrorPlane = oldTexture.mirrorPlane;
+              newTexture.renderList = oldTexture.renderList;
+              material.reflectionTexture = newTexture;
+              oldTexture.dispose();
+            }
+          });
         }
       });
       unbindFunctions.push(unbindQuality);
@@ -695,17 +716,28 @@ const initialize = (): void => {
           rayManager = hideRays(rayManager);
         }
 
-        // Apply quality settings
+        // Apply quality settings to mirror textures
         if (renderConfig) {
-          const scale =
-            uiState.quality === 'low'
-              ? 0.5
-              : uiState.quality === 'medium'
-                ? 0.75
-                : 1.0;
-          const newWidth = Math.floor(renderCanvas.clientWidth * scale);
-          const newHeight = Math.floor(renderCanvas.clientHeight * scale);
-          renderConfig.engine.setSize(newWidth, newHeight);
+          const mirrorSize = uiState.quality === 'low' ? 256 : 
+                            uiState.quality === 'medium' ? 512 : 1024;
+          
+          // Update all mirror texture sizes
+          renderConfig.scene.materials.forEach(material => {
+            if (material instanceof BABYLON.StandardMaterial && 
+                material.reflectionTexture instanceof BABYLON.MirrorTexture) {
+              const oldTexture = material.reflectionTexture;
+              const newTexture = new BABYLON.MirrorTexture(
+                oldTexture.name,
+                mirrorSize,
+                renderConfig.scene,
+                true
+              );
+              newTexture.mirrorPlane = oldTexture.mirrorPlane;
+              newTexture.renderList = oldTexture.renderList;
+              material.reflectionTexture = newTexture;
+              oldTexture.dispose();
+            }
+          });
         }
       };
 
@@ -721,6 +753,9 @@ const initialize = (): void => {
     editorConfig.engine.runRenderLoop(() => {
       // Keep Y positions locked before each render
       lockYPositions();
+      
+      // Sync render camera with rig position
+      syncRenderCamera();
 
       // Only render if scene has active cameras
       if (editorConfig?.scene.activeCamera) {
