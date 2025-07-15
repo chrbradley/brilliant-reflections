@@ -1,7 +1,7 @@
 // ABOUTME: Manages reflection instances for multi-bounce visualization
 // ABOUTME: Dynamically generates and updates instances based on bounce count
 
-import { Scene, Mesh, Vector3, InstancedMesh } from 'babylonjs';
+import { Scene, Mesh, Vector3, InstancedMesh, GlowLayer } from 'babylonjs';
 
 /**
  * Represents a reflection path through multiple mirrors
@@ -24,6 +24,7 @@ export interface ReflectionConfig {
     east: { position: number; normal: Vector3 };
     west: { position: number; normal: Vector3 };
   };
+  glowLayer?: GlowLayer;
 }
 
 /**
@@ -34,10 +35,12 @@ export class ReflectionInstanceManager {
   private mirrorWalls: ReflectionConfig['mirrorWalls'];
   private instances: Map<string, InstancedMesh> = new Map();
   private paths: Map<string, ReflectionPath> = new Map();
+  private glowLayer?: GlowLayer;
   
   constructor(config: ReflectionConfig) {
     this.scene = config.scene;
     this.mirrorWalls = config.mirrorWalls;
+    this.glowLayer = config.glowLayer;
   }
   
   /**
@@ -189,6 +192,11 @@ export class ReflectionInstanceManager {
       if (!instance) {
         instance = sourceMesh.createInstance(`${sourceMesh.name}_${path.id}`);
         this.instances.set(path.id, instance);
+        
+        // Add instance to glow layer if available
+        if (this.glowLayer && sourceMesh.name === 'colorCube') {
+          this.glowLayer.addIncludedOnlyMesh(instance);
+        }
       }
       
       // Update instance properties

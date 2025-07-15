@@ -35,6 +35,7 @@ import {
   UtilityLayerRenderer,
   Vector3,
   TransformNode,
+  GlowLayer,
 } from 'babylonjs';
 import * as BABYLON from 'babylonjs';
 import type { SceneConfig } from './types';
@@ -83,6 +84,7 @@ let rayManager: RayManager | null = null;
 let renderPassManager: RenderPassManager | null = null;
 let cubeReflectionManager: ReflectionInstanceManager | null = null;
 let groundReflectionManager: ReflectionInstanceManager | null = null;
+let glowLayer: GlowLayer | null = null;
 let unbindFunctions: Array<() => void> = [];
 
 /**
@@ -112,6 +114,10 @@ const cleanup = (): void => {
   if (gizmoManager) {
     gizmoManager.dispose();
     gizmoManager = null;
+  }
+  if (glowLayer) {
+    glowLayer.dispose();
+    glowLayer = null;
   }
   if (editorConfig) {
     editorConfig.dispose();
@@ -175,6 +181,21 @@ const initialize = (): void => {
       initialState.cube.rotation
     );
 
+    // Add material with emissive properties for glow effect
+    const glowMaterial = new BABYLON.StandardMaterial('cubeMaterial', renderConfig.scene);
+    glowMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8);
+    glowMaterial.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3); // Subtle emissive for glow
+    glowMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+    renderCube.material = glowMaterial;
+
+    // Turn off edge rendering for cleaner glow effect
+    renderCube.disableEdgesRendering();
+
+    // Add subtle glow to the render cube
+    glowLayer = new GlowLayer('glow', renderConfig.scene);
+    glowLayer.intensity = 1.2; // Higher intensity for better visibility
+    glowLayer.addIncludedOnlyMesh(renderCube);
+
     // Make all walls 99% transparent (clear)
     const wallNames = ['northWall', 'southWall', 'eastWall', 'westWall'];
     wallNames.forEach(wallName => {
@@ -197,7 +218,8 @@ const initialize = (): void => {
         north: { position: 10, normal: new Vector3(0, 0, -1) },
         east: { position: 10, normal: new Vector3(-1, 0, 0) },
         west: { position: -10, normal: new Vector3(1, 0, 0) }
-      }
+      },
+      glowLayer: glowLayer
     });
     
     const floor = renderConfig.scene.getMeshByName('floor');
