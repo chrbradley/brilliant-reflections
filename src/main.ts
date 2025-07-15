@@ -538,7 +538,7 @@ const initialize = (): void => {
     const syncRenderCamera = (): void => {
       const transform = syncCameraWithRig(
         cameraRig.rigNode.position,
-        cameraRig.rigNode.rotation
+        cameraRig.pivotNode.rotation
       );
       renderCamera.position.copyFrom(transform.position);
       renderCamera.rotation.copyFrom(transform.rotation);

@@ -12,28 +12,37 @@ export interface CameraTransform {
 }
 
 /**
- * Camera height above rig
- */
-const CAMERA_HEIGHT = 5;
-
-/**
  * Calculates camera position from rig position
+ * Camera should be at the base of the cone (wide end)
+ * The cone is 2 units tall, so base is 1 unit up from rig when pointing up
+ * When rotated forward (rig.rotation.x = PI/2), base is 1 unit behind rig
  */
-const calculateCameraPosition = (rigPosition: Vector3): Vector3 => {
+const calculateCameraPosition = (rigPosition: Vector3, pivotRotation: Vector3): Vector3 => {
+  // Camera is positioned 1 unit up and 4 units back from the rig
+  // This puts it at the base of the cone looking forward
+  const cameraDistance = 4; // Distance from rig center
+  const cameraHeight = 1; // Height above rig
+  
+  // Apply pivot Y rotation to determine camera offset
+  const yRotation = pivotRotation.y;
+  const offsetX = -Math.sin(yRotation) * cameraDistance;
+  const offsetZ = -Math.cos(yRotation) * cameraDistance;
+  
   return new Vector3(
-    rigPosition.x,
-    rigPosition.y + CAMERA_HEIGHT,
-    rigPosition.z
+    rigPosition.x + offsetX,
+    rigPosition.y + cameraHeight,
+    rigPosition.z + offsetZ
   );
 };
 
 /**
- * Calculates camera rotation from rig rotation (yaw only)
+ * Calculates camera rotation to look forward
+ * Camera should look in the same direction as the cone points
  */
-const calculateCameraRotation = (rigRotation: Vector3): Vector3 => {
+const calculateCameraRotation = (pivotRotation: Vector3): Vector3 => {
   return new Vector3(
-    0, // No pitch
-    rigRotation.y, // Same yaw as rig
+    0, // Look straight forward
+    pivotRotation.y, // Same yaw as pivot
     0 // No roll
   );
 };
@@ -42,16 +51,16 @@ const calculateCameraRotation = (rigRotation: Vector3): Vector3 => {
  * Syncs camera transform with camera rig
  *
  * @param rigPosition - Current rig position
- * @param rigRotation - Current rig rotation
+ * @param pivotRotation - Current pivot rotation (for Y-axis orientation)
  * @returns New camera transform
  */
 export const syncCameraWithRig = (
   rigPosition: Vector3,
-  rigRotation: Vector3
+  pivotRotation: Vector3
 ): CameraTransform => {
   // Calculate new position and rotation
-  const position = calculateCameraPosition(rigPosition);
-  const rotation = calculateCameraRotation(rigRotation);
+  const position = calculateCameraPosition(rigPosition, pivotRotation);
+  const rotation = calculateCameraRotation(pivotRotation);
 
   return {
     position,
