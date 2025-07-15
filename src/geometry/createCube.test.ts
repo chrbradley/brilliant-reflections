@@ -14,7 +14,7 @@ describe('createCube', () => {
     const cube = createCube(sceneConfig.scene);
 
     expect(cube).toBeDefined();
-    expect(cube.name).toBe('cube');
+    expect(cube.name).toBe('colorCube');
     
     // Cube should be 2x2x2 units
     // Note: Box is created with size parameter, not scaling
@@ -22,14 +22,14 @@ describe('createCube', () => {
     sceneConfig.dispose();
   });
 
-  it('should position cube at origin by default', () => {
+  it('should position cube at default position', () => {
     const canvas = document.createElement('canvas');
     const sceneConfig = createEditorScene(canvas);
     const cube = createCube(sceneConfig.scene);
 
     expect(cube.position.x).toBe(0);
-    expect(cube.position.y).toBe(1); // Half height above ground
-    expect(cube.position.z).toBe(0);
+    expect(cube.position.y).toBe(1); // 1 unit above ground
+    expect(cube.position.z).toBe(3); // 3 units forward
     
     sceneConfig.dispose();
   });

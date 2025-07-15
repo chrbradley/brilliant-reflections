@@ -92,7 +92,8 @@ describe('createRoom', () => {
         { x: 0, y: 5, z: ROOM_HALF },
         { x: 0, y: 0, z: 0 },
         WALL_NAMES.NORTH,
-        sceneConfig.scene
+        sceneConfig.scene,
+        true // reflective
       );
 
       expect(wall).toBeDefined();
@@ -112,7 +113,8 @@ describe('createRoom', () => {
         position,
         { x: 0, y: 0, z: 0 },
         WALL_NAMES.NORTH,
-        sceneConfig.scene
+        sceneConfig.scene,
+        true // reflective
       );
 
       expect(wall.position.x).toBeCloseTo(position.x);
@@ -130,10 +132,37 @@ describe('createRoom', () => {
         { x: ROOM_HALF, y: 5, z: 0 },
         rotation,
         WALL_NAMES.EAST,
-        sceneConfig.scene
+        sceneConfig.scene,
+        true // reflective
       );
 
       expect(wall.rotation.y).toBeCloseTo(rotation.y);
+      
+      sceneConfig.dispose();
+    });
+
+    it('should apply different materials for reflective and non-reflective walls', () => {
+      const canvas = document.createElement('canvas');
+      const sceneConfig = createEditorScene(canvas);
+      
+      const reflectiveWall = createWall(
+        { x: 0, y: 5, z: ROOM_HALF },
+        { x: 0, y: 0, z: 0 },
+        WALL_NAMES.NORTH,
+        sceneConfig.scene,
+        true // reflective
+      );
+      
+      const nonReflectiveWall = createWall(
+        { x: 0, y: 5, z: -ROOM_HALF },
+        { x: 0, y: Math.PI, z: 0 },
+        WALL_NAMES.SOUTH,
+        sceneConfig.scene,
+        false // non-reflective
+      );
+      
+      // Check that materials are different
+      expect(reflectiveWall.material).not.toBe(nonReflectiveWall.material);
       
       sceneConfig.dispose();
     });

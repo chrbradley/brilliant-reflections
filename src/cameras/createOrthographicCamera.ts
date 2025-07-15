@@ -7,7 +7,7 @@ import { UniversalCamera, Vector3, Scene } from 'babylonjs';
  * Creates camera position for top-down view
  */
 const createCameraPosition = (): Vector3 => {
-  return new Vector3(0, 20, 0);
+  return new Vector3(0, 20.5, 0); // Pulled out slightly to see wall tops
 };
 
 /**

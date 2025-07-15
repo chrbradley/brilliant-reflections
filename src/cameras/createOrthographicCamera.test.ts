@@ -18,13 +18,13 @@ describe('createOrthographicCamera', () => {
     expect(camera.mode).toBe(BABYLON.Camera.ORTHOGRAPHIC_CAMERA);
   });
 
-  it('should position camera at (0, 20, 0) looking at origin', () => {
+  it('should position camera at (0, 20.5, 0) looking at origin', () => {
     const canvas = document.createElement('canvas');
     const sceneConfig = createEditorScene(canvas);
     const camera = createOrthographicCamera('testCamera', sceneConfig.scene);
 
     expect(camera.position.x).toBeCloseTo(0);
-    expect(camera.position.y).toBeCloseTo(20);
+    expect(camera.position.y).toBeCloseTo(20.5);
     expect(camera.position.z).toBeCloseTo(0);
     
     expect(camera.target.x).toBeCloseTo(0);

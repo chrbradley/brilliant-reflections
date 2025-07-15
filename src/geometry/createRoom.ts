@@ -168,7 +168,8 @@ export const createWall = (
   position: Position,
   rotation: Rotation,
   name: string,
-  scene: Scene
+  scene: Scene,
+  isReflective: boolean = false
 ): Mesh => {
   const wall = MeshBuilder.CreateBox(
     name,
@@ -190,8 +191,14 @@ export const createWall = (
   wall.rotation.y = rotation.y;
   wall.rotation.z = rotation.z;
   
-  // Apply material
-  wall.material = createMatteMaterial(`${name}Material`, scene, { r: 0.65, g: 0.65, b: 0.65 });
+  // Apply material - different color for reflective walls
+  if (isReflective) {
+    // Light blue-grey for reflective walls (will be replaced with mirror material in render scene)
+    wall.material = createMatteMaterial(`${name}Material`, scene, { r: 0.55, g: 0.55, b: 0.75 });
+  } else {
+    // Standard grey for non-reflective walls
+    wall.material = createMatteMaterial(`${name}Material`, scene, { r: 0.65, g: 0.65, b: 0.65 });
+  }
   wall.isPickable = false; // Room geometry should not be selectable
   
   return wall;
@@ -215,25 +222,29 @@ const createWalls = (scene: Scene): RoomConfig['walls'] => {
       createWallPosition(0, ROOM_HALF),
       { x: 0, y: 0, z: 0 },
       WALL_NAMES.NORTH,
-      scene
+      scene,
+      true // reflective
     ),
     south: createWall(
       createWallPosition(0, -ROOM_HALF),
       { x: 0, y: Math.PI, z: 0 },
       WALL_NAMES.SOUTH,
-      scene
+      scene,
+      false // non-reflective
     ),
     east: createWall(
       createWallPosition(ROOM_HALF, 0),
       { x: 0, y: Math.PI / 2, z: 0 },
       WALL_NAMES.EAST,
-      scene
+      scene,
+      true // reflective
     ),
     west: createWall(
       createWallPosition(-ROOM_HALF, 0),
       { x: 0, y: -Math.PI / 2, z: 0 },
       WALL_NAMES.WEST,
-      scene
+      scene,
+      true // reflective
     ),
   };
   
