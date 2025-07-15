@@ -74,19 +74,21 @@ describe('traceRay', () => {
   });
 
   it('should respect maxBounces limit', () => {
+    // Test with a ray going straight to the east wall (mirror)
     const ray: Ray = {
       origin: new Vector3(0, 0, 0),
-      direction: new Vector3(1, 0, 1).normalize(),
+      direction: new Vector3(1, 0, 0), // Straight to east wall
       color: new Color3(1, 0, 0),
     };
     
     const points1 = traceRay(ray, createTestWalls(), 1);
-    const points3 = traceRay(ray, createTestWalls(), 3);
+    const points2 = traceRay(ray, createTestWalls(), 2);
     
-    // More bounces should produce more points
-    expect(points3.length).toBeGreaterThan(points1.length);
-    // But limited by max bounces (not infinite)
-    expect(points3.length).toBeLessThanOrEqual(4); // origin + 3 bounces
+    // With maxBounces=1: origin + first hit + second hit = 3 points (2 segments)
+    expect(points1.length).toBe(3);
+    
+    // With maxBounces=2: origin + first hit + second hit + third hit = 4 points (3 segments)
+    expect(points2.length).toBe(4);
   });
 
   it('should clamp maxBounces to valid range', () => {
@@ -100,7 +102,7 @@ describe('traceRay', () => {
     expect(pointsNegative.length).toBeGreaterThanOrEqual(2); // At least 1 bounce
     
     const pointsTooMany = traceRay(ray, createTestWalls(), 10);
-    expect(pointsTooMany.length).toBeLessThanOrEqual(6); // Max 5 bounces + origin
+    expect(pointsTooMany.length).toBeLessThanOrEqual(7); // Max 5 bounces + origin + final hit = 7 points
   });
 
   it('should offset points slightly above ground', () => {

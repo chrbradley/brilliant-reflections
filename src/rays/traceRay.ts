@@ -26,7 +26,10 @@ export const traceRay = (
   // Clamp bounces to valid range
   const bounces = Math.max(1, Math.min(5, maxBounces));
   
-  for (let bounce = 0; bounce < bounces; bounce++) {
+  let bounceCount = 0;
+  
+  // Continue tracing until we hit a non-mirror wall or reach max bounces
+  while (bounceCount <= bounces) {
     // Find nearest wall intersection
     const intersection = findNearestIntersection(
       currentOrigin,
@@ -43,8 +46,8 @@ export const traceRay = (
     const offsetPoint = intersection.point.add(new Vector3(0, 0.01, 0));
     points.push(offsetPoint);
     
-    // Stop if we hit a non-mirror wall
-    if (!intersection.isMirror) {
+    // Stop if we hit a non-mirror wall or reached max bounces
+    if (!intersection.isMirror || bounceCount >= bounces) {
       break;
     }
     
@@ -53,6 +56,8 @@ export const traceRay = (
     
     // Move origin slightly away from wall to avoid self-intersection
     currentOrigin = intersection.point.add(currentDirection.scale(0.001));
+    
+    bounceCount++;
   }
   
   return points;
