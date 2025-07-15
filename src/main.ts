@@ -715,7 +715,10 @@ const initialize = (): void => {
         // Reset camera indicator
         if (cameraIndicator) {
           cameraIndicator.indicator.position.set(0, 5, -10);
-          cameraIndicator.indicator.rotation.set(0, 0, 0);
+          
+          // Re-orient to look at origin
+          cameraIndicator.indicator.lookAt(new Vector3(0, 0, 0));
+          cameraIndicator.indicator.rotation.y += Math.PI;
 
           // Update transform state
           transformState = updateObjectPosition(
