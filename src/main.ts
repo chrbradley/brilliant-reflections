@@ -187,6 +187,12 @@ const initialize = (): void => {
       maxBounces: 2, // Initial bounce count
       mirrorWalls: getMirrorWalls(),
     });
+    
+    // Execute initial render passes after a small delay to ensure scene is ready
+    setTimeout(() => {
+      console.log('Executing initial render passes');
+      renderPassManager.executeRenderPasses();
+    }, 100);
 
     // Get initial state configuration
     const initialState = createInitialStateConfig();
@@ -714,7 +720,6 @@ const initialize = (): void => {
 
           // Refresh render pass manager with new textures
           renderPassManager.refreshMirrorTextures();
-          renderPassManager.executeRenderPasses();
         }
       });
       unbindFunctions.push(unbindQuality);
@@ -824,7 +829,6 @@ const initialize = (): void => {
 
           // Refresh render pass manager with new textures
           renderPassManager.refreshMirrorTextures();
-          renderPassManager.executeRenderPasses();
         }
       };
 
