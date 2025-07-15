@@ -174,28 +174,74 @@ const initialize = (): void => {
       }
     });
 
-    // Test: Create mirror instances of cube and ground across north wall
+    // Test: Create mirror instances of cube and ground across all three mirror walls
     const mirrorInstances: BABYLON.InstancedMesh[] = [];
     
-    // Create cube instance
-    const cubeInstance = renderCube.createInstance('cubeMirrorNorth');
-    cubeInstance.position = new BABYLON.Vector3(
+    // North wall instances (mirror across z=10)
+    const cubeInstanceNorth = renderCube.createInstance('cubeMirrorNorth');
+    cubeInstanceNorth.position = new BABYLON.Vector3(
       renderCube.position.x,
       renderCube.position.y,
       20 - renderCube.position.z  // Mirror across z=10 plane
     );
-    mirrorInstances.push(cubeInstance);
+    // Flip along Z axis to show correct reflection
+    cubeInstanceNorth.scaling = new BABYLON.Vector3(1, 1, -1);
+    mirrorInstances.push(cubeInstanceNorth);
     
-    // Create ground instance
+    // East wall instances (mirror across x=10)
+    const cubeInstanceEast = renderCube.createInstance('cubeMirrorEast');
+    cubeInstanceEast.position = new BABYLON.Vector3(
+      20 - renderCube.position.x,  // Mirror across x=10 plane
+      renderCube.position.y,
+      renderCube.position.z
+    );
+    // Flip along X axis to show correct reflection
+    cubeInstanceEast.scaling = new BABYLON.Vector3(-1, 1, 1);
+    mirrorInstances.push(cubeInstanceEast);
+    
+    // West wall instances (mirror across x=-10)
+    const cubeInstanceWest = renderCube.createInstance('cubeMirrorWest');
+    cubeInstanceWest.position = new BABYLON.Vector3(
+      -20 - renderCube.position.x,  // Mirror across x=-10 plane
+      renderCube.position.y,
+      renderCube.position.z
+    );
+    // Flip along X axis to show correct reflection
+    cubeInstanceWest.scaling = new BABYLON.Vector3(-1, 1, 1);
+    mirrorInstances.push(cubeInstanceWest);
+    
+    // Create ground instances
     const ground = renderConfig.scene.getMeshByName('ground');
     if (ground && ground instanceof BABYLON.Mesh) {
-      const groundInstance = ground.createInstance('groundMirrorNorth');
-      groundInstance.position = new BABYLON.Vector3(
+      // North wall ground
+      const groundInstanceNorth = ground.createInstance('groundMirrorNorth');
+      groundInstanceNorth.position = new BABYLON.Vector3(
         ground.position.x,
         ground.position.y,
-        20 - ground.position.z  // Mirror across z=10 plane
+        20 - ground.position.z
       );
-      mirrorInstances.push(groundInstance);
+      groundInstanceNorth.scaling = new BABYLON.Vector3(1, 1, -1);
+      mirrorInstances.push(groundInstanceNorth);
+      
+      // East wall ground
+      const groundInstanceEast = ground.createInstance('groundMirrorEast');
+      groundInstanceEast.position = new BABYLON.Vector3(
+        20 - ground.position.x,
+        ground.position.y,
+        ground.position.z
+      );
+      groundInstanceEast.scaling = new BABYLON.Vector3(-1, 1, 1);
+      mirrorInstances.push(groundInstanceEast);
+      
+      // West wall ground
+      const groundInstanceWest = ground.createInstance('groundMirrorWest');
+      groundInstanceWest.position = new BABYLON.Vector3(
+        -20 - ground.position.x,
+        ground.position.y,
+        ground.position.z
+      );
+      groundInstanceWest.scaling = new BABYLON.Vector3(-1, 1, 1);
+      mirrorInstances.push(groundInstanceWest);
     }
     
     // Helper functions to show/hide instances
@@ -209,10 +255,20 @@ const initialize = (): void => {
     
     // Helper function to update instance positions
     const updateInstancePositions = () => {
-      // Update cube instance
-      cubeInstance.position.x = renderCube.position.x;
-      cubeInstance.position.y = renderCube.position.y;
-      cubeInstance.position.z = 20 - renderCube.position.z;
+      // Update north wall cube instance
+      cubeInstanceNorth.position.x = renderCube.position.x;
+      cubeInstanceNorth.position.y = renderCube.position.y;
+      cubeInstanceNorth.position.z = 20 - renderCube.position.z;
+      
+      // Update east wall cube instance
+      cubeInstanceEast.position.x = 20 - renderCube.position.x;
+      cubeInstanceEast.position.y = renderCube.position.y;
+      cubeInstanceEast.position.z = renderCube.position.z;
+      
+      // Update west wall cube instance
+      cubeInstanceWest.position.x = -20 - renderCube.position.x;
+      cubeInstanceWest.position.y = renderCube.position.y;
+      cubeInstanceWest.position.z = renderCube.position.z;
     };
     
     // Initially show instances
@@ -433,8 +489,10 @@ const initialize = (): void => {
             renderCube.rotation.copyFrom(editorCube.rotation);
           }
           
-          // Update instance rotation in case of constraint changes
-          cubeInstance.rotation.copyFrom(renderCube.rotation);
+          // Update all instance rotations in case of constraint changes
+          cubeInstanceNorth.rotation.copyFrom(renderCube.rotation);
+          cubeInstanceEast.rotation.copyFrom(renderCube.rotation);
+          cubeInstanceWest.rotation.copyFrom(renderCube.rotation);
 
           // Update rays if cube is selected
           if (rayManager && selectionState.selectedObjectId === 'colorCube') {
@@ -598,8 +656,10 @@ const initialize = (): void => {
                   { count: uiState.rayCount, maxBounces: uiState.maxBounces }
                 );
               }
-              // Update cube instance rotation
-              cubeInstance.rotation.copyFrom(renderCube.rotation);
+              // Update all cube instance rotations
+              cubeInstanceNorth.rotation.copyFrom(renderCube.rotation);
+              cubeInstanceEast.rotation.copyFrom(renderCube.rotation);
+              cubeInstanceWest.rotation.copyFrom(renderCube.rotation);
               showInstances();
             }
           }
