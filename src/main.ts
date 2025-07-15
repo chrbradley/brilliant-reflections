@@ -176,7 +176,9 @@ const initialize = (): void => {
 
     // Test: Create mirror instances of cube and ground across all three mirror walls
     const mirrorInstances: BABYLON.InstancedMesh[] = [];
+    const cornerInstances: BABYLON.InstancedMesh[] = []; // Second bounce instances
     
+    // FIRST BOUNCE: Direct reflections in each wall
     // North wall instances (mirror across z=10)
     const cubeInstanceNorth = renderCube.createInstance('cubeMirrorNorth');
     cubeInstanceNorth.position = new BABYLON.Vector3(
@@ -244,13 +246,66 @@ const initialize = (): void => {
       mirrorInstances.push(groundInstanceWest);
     }
     
+    // SECOND BOUNCE: Corner reflections (reflections of reflections)
+    // North+East corner (seen when looking north, seeing east wall reflected)
+    const cubeInstanceNorthEast = renderCube.createInstance('cubeMirrorNorthEast');
+    cubeInstanceNorthEast.position = new BABYLON.Vector3(
+      20 - renderCube.position.x,  // Mirrored in X
+      renderCube.position.y,
+      20 - renderCube.position.z   // Mirrored in Z
+    );
+    // Double flip: both X and Z
+    cubeInstanceNorthEast.scaling = new BABYLON.Vector3(-1, 1, -1);
+    cornerInstances.push(cubeInstanceNorthEast);
+    
+    // North+West corner (seen when looking north, seeing west wall reflected)
+    const cubeInstanceNorthWest = renderCube.createInstance('cubeMirrorNorthWest');
+    cubeInstanceNorthWest.position = new BABYLON.Vector3(
+      -20 - renderCube.position.x,  // Mirrored in X (west)
+      renderCube.position.y,
+      20 - renderCube.position.z    // Mirrored in Z (north)
+    );
+    // Double flip: both X and Z
+    cubeInstanceNorthWest.scaling = new BABYLON.Vector3(-1, 1, -1);
+    cornerInstances.push(cubeInstanceNorthWest);
+    
+    // Add corner ground instances if ground exists
+    if (ground && ground instanceof BABYLON.Mesh) {
+      // North+East ground
+      const groundInstanceNorthEast = ground.createInstance('groundMirrorNorthEast');
+      groundInstanceNorthEast.position = new BABYLON.Vector3(
+        20 - ground.position.x,
+        ground.position.y,
+        20 - ground.position.z
+      );
+      groundInstanceNorthEast.scaling = new BABYLON.Vector3(-1, 1, -1);
+      cornerInstances.push(groundInstanceNorthEast);
+      
+      // North+West ground
+      const groundInstanceNorthWest = ground.createInstance('groundMirrorNorthWest');
+      groundInstanceNorthWest.position = new BABYLON.Vector3(
+        -20 - ground.position.x,
+        ground.position.y,
+        20 - ground.position.z
+      );
+      groundInstanceNorthWest.scaling = new BABYLON.Vector3(-1, 1, -1);
+      cornerInstances.push(groundInstanceNorthWest);
+    }
+    
     // Helper functions to show/hide instances
     const hideInstances = () => {
       mirrorInstances.forEach(instance => instance.setEnabled(false));
+      cornerInstances.forEach(instance => instance.setEnabled(false));
     };
     
     const showInstances = () => {
       mirrorInstances.forEach(instance => instance.setEnabled(true));
+      // Only show corner instances if bounce count is 2 or more
+      if (uiState.maxBounces >= 2) {
+        cornerInstances.forEach(instance => instance.setEnabled(true));
+      } else {
+        cornerInstances.forEach(instance => instance.setEnabled(false));
+      }
     };
     
     // Helper function to update instance positions
@@ -269,6 +324,17 @@ const initialize = (): void => {
       cubeInstanceWest.position.x = -20 - renderCube.position.x;
       cubeInstanceWest.position.y = renderCube.position.y;
       cubeInstanceWest.position.z = renderCube.position.z;
+      
+      // Update corner instances (second bounce)
+      // North+East corner
+      cubeInstanceNorthEast.position.x = 20 - renderCube.position.x;
+      cubeInstanceNorthEast.position.y = renderCube.position.y;
+      cubeInstanceNorthEast.position.z = 20 - renderCube.position.z;
+      
+      // North+West corner
+      cubeInstanceNorthWest.position.x = -20 - renderCube.position.x;
+      cubeInstanceNorthWest.position.y = renderCube.position.y;
+      cubeInstanceNorthWest.position.z = 20 - renderCube.position.z;
     };
     
     // Initially show instances
@@ -493,6 +559,8 @@ const initialize = (): void => {
           cubeInstanceNorth.rotation.copyFrom(renderCube.rotation);
           cubeInstanceEast.rotation.copyFrom(renderCube.rotation);
           cubeInstanceWest.rotation.copyFrom(renderCube.rotation);
+          cubeInstanceNorthEast.rotation.copyFrom(renderCube.rotation);
+          cubeInstanceNorthWest.rotation.copyFrom(renderCube.rotation);
 
           // Update rays if cube is selected
           if (rayManager && selectionState.selectedObjectId === 'colorCube') {
@@ -660,6 +728,8 @@ const initialize = (): void => {
               cubeInstanceNorth.rotation.copyFrom(renderCube.rotation);
               cubeInstanceEast.rotation.copyFrom(renderCube.rotation);
               cubeInstanceWest.rotation.copyFrom(renderCube.rotation);
+              cubeInstanceNorthEast.rotation.copyFrom(renderCube.rotation);
+              cubeInstanceNorthWest.rotation.copyFrom(renderCube.rotation);
               showInstances();
             }
           }
@@ -826,6 +896,9 @@ const initialize = (): void => {
 
         // Update render pass manager
         renderPassManager.setBounceCount(value);
+        
+        // Update instance visibility based on bounce count
+        showInstances();
 
         // Update rays if cube is selected
         if (
