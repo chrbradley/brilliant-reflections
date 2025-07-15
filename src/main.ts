@@ -151,7 +151,10 @@ const initialize = (): void => {
 
     // Create lighting for both scenes
     createAmbientLight('editorLight', editorConfig.scene);
-    createAmbientLight('renderLight', renderConfig.scene);
+    
+    // Enhanced lighting for render scene
+    const renderLight = createAmbientLight('renderLight', renderConfig.scene);
+    renderLight.intensity = 1.5; // Much brighter for better visibility
 
     // Create room geometry in both scenes
     createRoom(editorConfig.scene);
