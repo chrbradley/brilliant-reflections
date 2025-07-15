@@ -346,6 +346,27 @@ const initialize = (): void => {
               { count: uiState.rayCount, maxBounces: uiState.maxBounces }
             );
           }
+        } else if (
+          attachedMesh === cameraRig.rigNode &&
+          cameraRig.pivotNode.rotation
+        ) {
+          // Handle camera rig rotation constraints (Y-axis only)
+          // Apply Y rotation to pivot, not rig (matches reference behavior)
+          const constrained = applyRotationConstraints(
+            cameraRig.pivotNode.rotation,
+            15
+          );
+          cameraRig.pivotNode.rotation.copyFrom(constrained);
+
+          // Update transform state
+          transformState = updateObjectRotation(
+            transformState,
+            'cameraRig',
+            cameraRig.pivotNode.rotation
+          );
+          
+          // Sync render camera
+          syncRenderCamera();
         }
       }
     };
@@ -510,7 +531,6 @@ const initialize = (): void => {
         if (rayManager) {
           rayManager = hideRays(rayManager);
         }
-        
       }
     });
 
@@ -733,28 +753,6 @@ const initialize = (): void => {
     editorConfig.engine.runRenderLoop(() => {
       // Keep Y positions locked before each render
       lockYPositions();
-      
-      // Handle camera rig rotation transfer
-      if (gizmoManager?.attachedMesh === cameraRig.rigNode) {
-        // Transfer any Y rotation from rigNode to pivotNode
-        if (cameraRig.rigNode.rotation.y !== 0) {
-          cameraRig.pivotNode.rotation.y += cameraRig.rigNode.rotation.y;
-          
-          // Apply constraints
-          const constrained = applyRotationConstraints(cameraRig.pivotNode.rotation, 15);
-          cameraRig.pivotNode.rotation.copyFrom(constrained);
-          
-          // Update transform state
-          transformState = updateObjectRotation(
-            transformState,
-            'cameraRig',
-            cameraRig.pivotNode.rotation
-          );
-          
-          // Reset rigNode to fixed rotation
-          cameraRig.rigNode.rotation.set(Math.PI / 2, 0, Math.PI);
-        }
-      }
       
       // Sync render camera with rig position
       syncRenderCamera();
