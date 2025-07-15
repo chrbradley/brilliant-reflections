@@ -200,9 +200,9 @@ const initialize = (): void => {
       }
     });
     
-    const ground = renderConfig.scene.getMeshByName('ground');
+    const floor = renderConfig.scene.getMeshByName('floor');
     
-    if (ground && ground instanceof BABYLON.Mesh) {
+    if (floor && floor instanceof BABYLON.Mesh) {
       groundReflectionManager = new ReflectionInstanceManager({
         scene: renderConfig.scene,
         mirrorWalls: {
@@ -237,11 +237,11 @@ const initialize = (): void => {
         uiState.maxBounces
       );
       
-      if (ground && ground instanceof BABYLON.Mesh && groundReflectionManager) {
+      if (floor && floor instanceof BABYLON.Mesh && groundReflectionManager) {
         groundReflectionManager.updateInstances(
-          ground,
-          ground.position,
-          ground.rotation,
+          floor,
+          floor.position,
+          floor.rotation,
           uiState.maxBounces
         );
       }
