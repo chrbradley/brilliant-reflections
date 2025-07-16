@@ -16,6 +16,7 @@ export interface RayState {
 export const createInitialRayState = (): RayState => ({
   config: {
     count: 4,
+    fanRays: 1,
     maxBounces: 2,
   },
 });

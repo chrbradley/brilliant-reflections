@@ -22,7 +22,7 @@ export type OnPickCallback = (objectId: string | null) => void;
  * @returns Pick handler function
  */
 export const createPickHandler = (
-  scene: Scene,
+  _scene: Scene,
   onPick: OnPickCallback,
   clearOnEmpty: boolean = false
 ): PickHandler => {

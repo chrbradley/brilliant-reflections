@@ -8,7 +8,6 @@ import {
   Mesh,
   Color4,
   StandardMaterial,
-  Color3,
 } from 'babylonjs';
 
 /**

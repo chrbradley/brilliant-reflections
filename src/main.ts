@@ -18,8 +18,7 @@ import {
   selectObject,
   clearSelection,
 } from './state/selectionState';
-import { createMirrorConfig } from './mirrors/createMirrorTexture';
-import { applyMirrorToWall, getMirrorWalls } from './mirrors/applyMirrors';
+import { getMirrorWalls } from './mirrors/applyMirrors';
 import { RenderPassManager } from './render/RenderPassManager';
 import { createPickHandler } from './editor/handlePicking';
 import { applyHighlight, removeHighlight } from './effects/highlightEffect';
@@ -34,7 +33,6 @@ import {
   GizmoManager,
   UtilityLayerRenderer,
   Vector3,
-  TransformNode,
 } from 'babylonjs';
 import * as BABYLON from 'babylonjs';
 import type { SceneConfig } from './types';
@@ -202,14 +200,18 @@ const initialize = (): void => {
     
     // Helper functions to show/hide instances
     const hideInstances = () => {
-      cubeReflectionManager.hideAll();
+      if (cubeReflectionManager) {
+        cubeReflectionManager.hideAll();
+      }
       if (groundReflectionManager) {
         groundReflectionManager.hideAll();
       }
     };
     
     const showInstances = () => {
-      cubeReflectionManager.showAll(uiState.maxBounces);
+      if (cubeReflectionManager) {
+        cubeReflectionManager.showAll(uiState.maxBounces);
+      }
       if (groundReflectionManager) {
         groundReflectionManager.showAll(uiState.maxBounces);
       }
@@ -217,12 +219,14 @@ const initialize = (): void => {
     
     // Helper function to update instance positions
     const updateInstancePositions = () => {
-      cubeReflectionManager.updateInstances(
-        renderSphere,
-        renderSphere.position,
-        renderSphere.rotation,
-        uiState.maxBounces
-      );
+      if (cubeReflectionManager) {
+        cubeReflectionManager.updateInstances(
+          renderSphere,
+          renderSphere.position,
+          renderSphere.rotation,
+          uiState.maxBounces
+        );
+      }
       
       if (floor && floor instanceof BABYLON.Mesh && groundReflectionManager) {
         groundReflectionManager.updateInstances(
@@ -282,7 +286,9 @@ const initialize = (): void => {
     
     // Execute initial render passes after a small delay to ensure scene is ready
     setTimeout(() => {
-      renderPassManager.executeRenderPasses();
+      if (renderPassManager) {
+        renderPassManager.executeRenderPasses();
+      }
     }, 100);
 
     // Create camera indicator in editor scene only (shows render camera position)
@@ -308,15 +314,19 @@ const initialize = (): void => {
       '✅ GizmoManager created with editor scene utility layer:',
       gizmoManager
     );
-    console.log(
-      '🎯 Utility layer scene engine canvas:',
-      gizmoManager.utilityLayer.utilityLayerScene
-        .getEngine()
-        .getRenderingCanvas().id
-    );
+    if (gizmoManager) {
+      console.log(
+        '🎯 Utility layer scene engine canvas:',
+        gizmoManager.utilityLayer.utilityLayerScene
+          .getEngine()
+          .getRenderingCanvas()?.id
+      );
+    }
 
-    gizmoManager.attachableMeshes = [editorSphere, cameraIndicator.indicator]; // Sphere and camera indicator are draggable
-    gizmoManager.clearGizmoOnEmptyPointerEvent = true; // Auto-clear on empty click
+    if (gizmoManager) {
+      gizmoManager.attachableMeshes = [editorSphere, cameraIndicator.indicator]; // Sphere and camera indicator are draggable
+      gizmoManager.clearGizmoOnEmptyPointerEvent = true; // Auto-clear on empty click
+    }
     console.log('📦 EditorCube for gizmo:', editorSphere);
 
     // Bootstrap once so gizmo sub-objects exist
@@ -811,7 +821,9 @@ const initialize = (): void => {
         if (bouncesValue) bouncesValue.textContent = value.toString();
 
         // Update render pass manager
-        renderPassManager.setBounceCount(value);
+        if (renderPassManager) {
+          renderPassManager.setBounceCount(value);
+        }
         
         // Update instance positions and visibility based on bounce count
         updateInstancePositions();

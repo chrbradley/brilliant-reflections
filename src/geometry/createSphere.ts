@@ -2,7 +2,6 @@
 // ABOUTME: Returns configured sphere mesh with seamless color transitions
 
 import { MeshBuilder, Scene, Mesh, Vector3, StandardMaterial, Color3, DynamicTexture } from 'babylonjs';
-import * as BABYLON from 'babylonjs';
 import { markAsRenderable } from '../utils/applyLayerMask';
 
 /**

@@ -7,6 +7,14 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    sourcemap: false,
+    minify: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          babylon: ['babylonjs'],
+        },
+      },
+    },
   },
 });

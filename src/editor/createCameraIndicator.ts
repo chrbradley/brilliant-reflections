@@ -2,7 +2,6 @@
 // ABOUTME: The elongated dimension points in the camera's viewing direction
 
 import {
-  MeshBuilder,
   Scene,
   Mesh,
   StandardMaterial,
@@ -62,7 +61,7 @@ const createIndicatorBox = (scene: Scene): Mesh => {
   ];
   
   // Create normals for proper lighting
-  const normals = [];
+  const normals: number[] = [];
   VertexData.ComputeNormals(positions, indices, normals);
   
   // Create the mesh

@@ -138,8 +138,10 @@ export const createFloor = (scene: Scene): Mesh => {
   const gridTexture = createGridTexture(scene);
   if (gridTexture) {
     floorMat.diffuseTexture = gridTexture;
-    floorMat.diffuseTexture.uScale = 1;
-    floorMat.diffuseTexture.vScale = 1;
+    if (floorMat.diffuseTexture) {
+      (floorMat.diffuseTexture as any).uScale = 1;
+      (floorMat.diffuseTexture as any).vScale = 1;
+    }
     floorMat.specularColor = new Color3(0, 0, 0); // No specular
     floorMat.emissiveColor = new Color3(0.1, 0.1, 0.1); // Slight emissive for visibility
   } else {
