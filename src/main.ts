@@ -196,11 +196,17 @@ const initialize = (): void => {
       '✅ GizmoManager created with editor scene utility layer:',
       gizmoManager
     );
+    
+    if (!gizmoManager) {
+      console.error('❌ Failed to create GizmoManager');
+      return;
+    }
+    
     console.log(
       '🎯 Utility layer scene engine canvas:',
       gizmoManager.utilityLayer.utilityLayerScene
         .getEngine()
-        .getRenderingCanvas().id
+        .getRenderingCanvas()?.id
     );
 
     gizmoManager.attachableMeshes = [editorCube, cameraRig.coneIndicator]; // Cube and camera rig cone are draggable
@@ -230,7 +236,7 @@ const initialize = (): void => {
 
     // Wait for gizmo to be ready then configure
     setTimeout(() => {
-      if (gizmoManager.gizmos.positionGizmo) {
+      if (gizmoManager && gizmoManager.gizmos.positionGizmo) {
         console.log('🔧 Configuring position gizmo after delay...');
         gizmoManager.gizmos.positionGizmo.snapDistance = 1; // 1-unit grid
         gizmoManager.gizmos.positionGizmo.yGizmo.isEnabled = false; // lock Y-move
@@ -243,7 +249,7 @@ const initialize = (): void => {
       }
 
       // Configure rotation gizmo
-      if (gizmoManager.gizmos.rotationGizmo) {
+      if (gizmoManager && gizmoManager.gizmos.rotationGizmo) {
         console.log('🔧 Configuring rotation gizmo...');
         const rotGizmo = gizmoManager.gizmos.rotationGizmo;
         rotGizmo.snapDistance = Math.PI / 12; // 15 degrees in radians
@@ -259,7 +265,7 @@ const initialize = (): void => {
     // Add constraint callbacks for position and rotation
     const limitToRoom = (): void => {
       if (gizmoManager?.attachedMesh) {
-        const attachedMesh = gizmoManager.attachedMesh;
+        const attachedMesh = gizmoManager?.attachedMesh;
 
         if (attachedMesh === editorCube && editorCube.position) {
           // Handle cube position constraints
@@ -318,7 +324,7 @@ const initialize = (): void => {
 
     const constrainRotation = (): void => {
       if (gizmoManager?.attachedMesh) {
-        const attachedMesh = gizmoManager.attachedMesh;
+        const attachedMesh = gizmoManager?.attachedMesh;
 
         if (attachedMesh === editorCube && editorCube.rotation) {
           // Handle cube rotation constraints
@@ -373,18 +379,18 @@ const initialize = (): void => {
 
     // Apply constraints on drag (delayed to ensure gizmos are ready)
     setTimeout(() => {
-      if (gizmoManager.gizmos.positionGizmo) {
+      if (gizmoManager && gizmoManager.gizmos.positionGizmo) {
         // Hide rays on drag start, show on drag end (for cube only)
         gizmoManager.gizmos.positionGizmo.xGizmo.dragBehavior.onDragStartObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube && rayManager) {
+            if (gizmoManager && gizmoManager.attachedMesh === editorCube && rayManager) {
               rayManager = hideRays(rayManager);
             }
           }
         );
         gizmoManager.gizmos.positionGizmo.zGizmo.dragBehavior.onDragStartObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube && rayManager) {
+            if (gizmoManager && gizmoManager.attachedMesh === editorCube && rayManager) {
               rayManager = hideRays(rayManager);
             }
           }
@@ -392,7 +398,7 @@ const initialize = (): void => {
 
         gizmoManager.gizmos.positionGizmo.xGizmo.dragBehavior.onDragEndObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube && rayManager) {
+            if (gizmoManager && gizmoManager.attachedMesh === editorCube && rayManager) {
               rayManager = showRays(rayManager);
               rayManager = updateRays(
                 rayManager,
@@ -405,7 +411,7 @@ const initialize = (): void => {
         );
         gizmoManager.gizmos.positionGizmo.zGizmo.dragBehavior.onDragEndObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube && rayManager) {
+            if (gizmoManager && gizmoManager.attachedMesh === editorCube && rayManager) {
               rayManager = showRays(rayManager);
               rayManager = updateRays(
                 rayManager,
@@ -426,7 +432,7 @@ const initialize = (): void => {
         console.log('✅ Position drag constraints attached');
       }
 
-      if (gizmoManager.gizmos.rotationGizmo) {
+      if (gizmoManager && gizmoManager.gizmos.rotationGizmo) {
         gizmoManager.gizmos.rotationGizmo.yGizmo.dragBehavior.onDragObservable.add(
           constrainRotation
         );
@@ -434,7 +440,7 @@ const initialize = (): void => {
         // Hide rays during rotation drag
         gizmoManager.gizmos.rotationGizmo.yGizmo.dragBehavior.onDragStartObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube && rayManager) {
+            if (gizmoManager && gizmoManager.attachedMesh === editorCube && rayManager) {
               rayManager = hideRays(rayManager);
             }
           }
@@ -443,7 +449,7 @@ const initialize = (): void => {
         // Show and update rays after rotation
         gizmoManager.gizmos.rotationGizmo.yGizmo.dragBehavior.onDragEndObservable.add(
           () => {
-            if (gizmoManager.attachedMesh === editorCube && rayManager) {
+            if (gizmoManager && gizmoManager.attachedMesh === editorCube && rayManager) {
               rayManager = showRays(rayManager);
               rayManager = updateRays(
                 rayManager,
@@ -462,7 +468,7 @@ const initialize = (): void => {
     // Following reference pattern: start with nothing selected
     setTimeout(() => {
       console.log('🔄 Starting with nothing selected...');
-      gizmoManager.attachToMesh(null);
+      gizmoManager?.attachToMesh(null);
     }, 200);
 
     // Create ray visualization manager
@@ -634,14 +640,14 @@ const initialize = (): void => {
           const mirrorSize = value === 'low' ? 256 : value === 'medium' ? 512 : 1024;
           
           // Update all mirror texture sizes
-          renderConfig.scene.materials.forEach(material => {
+          renderConfig?.scene.materials.forEach(material => {
             if (material instanceof BABYLON.StandardMaterial && 
                 material.reflectionTexture instanceof BABYLON.MirrorTexture) {
               const oldTexture = material.reflectionTexture;
               const newTexture = new BABYLON.MirrorTexture(
                 oldTexture.name,
                 mirrorSize,
-                renderConfig.scene,
+                renderConfig!.scene,
                 true
               );
               newTexture.mirrorPlane = oldTexture.mirrorPlane;
@@ -722,14 +728,14 @@ const initialize = (): void => {
                             uiState.quality === 'medium' ? 512 : 1024;
           
           // Update all mirror texture sizes
-          renderConfig.scene.materials.forEach(material => {
+          renderConfig?.scene.materials.forEach(material => {
             if (material instanceof BABYLON.StandardMaterial && 
                 material.reflectionTexture instanceof BABYLON.MirrorTexture) {
               const oldTexture = material.reflectionTexture;
               const newTexture = new BABYLON.MirrorTexture(
                 oldTexture.name,
                 mirrorSize,
-                renderConfig.scene,
+                renderConfig!.scene,
                 true
               );
               newTexture.mirrorPlane = oldTexture.mirrorPlane;
@@ -784,7 +790,7 @@ const initialize = (): void => {
     // Add Babylon.js scene inspector for debugging
     if (window.location.search.includes('inspector')) {
       import('@babylonjs/inspector').then(() => {
-        editorConfig.scene.debugLayer.show({
+        editorConfig?.scene.debugLayer.show({
           embedMode: true,
         });
       });

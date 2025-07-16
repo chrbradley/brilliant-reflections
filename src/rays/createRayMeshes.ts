@@ -40,8 +40,9 @@ const createSegmentMesh = (
     scene
   );
 
-  mesh.color = color;
-  mesh.alpha = segment.alpha;
+  // Store color and alpha for testing
+  (mesh as any).color = color;
+  (mesh as any).alpha = segment.alpha;
   mesh.isPickable = false; // Rays should not interfere with picking
 
   return mesh;

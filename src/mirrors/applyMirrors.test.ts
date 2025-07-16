@@ -5,6 +5,7 @@ import {
   createMirrorMaterial,
 } from './applyMirrors';
 import { StandardMaterial, MirrorTexture, Mesh, Scene } from 'babylonjs';
+import * as BABYLON from 'babylonjs';
 import { setupCanvasMock } from '../test-utils/mockCanvas';
 import { createEditorScene } from '../editor/createEditorScene';
 import { createRoom } from '../geometry/createRoom';

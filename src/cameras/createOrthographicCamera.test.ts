@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { createOrthographicCamera } from './createOrthographicCamera';
 import { setupCanvasMock } from '../test-utils/mockCanvas';
 import { createEditorScene } from '../editor/createEditorScene';
+import * as BABYLON from 'babylonjs';
 
 describe('createOrthographicCamera', () => {
   beforeEach(() => {

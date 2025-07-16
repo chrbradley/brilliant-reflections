@@ -39,13 +39,8 @@ export const createRotationGizmo = (
   mesh: Mesh,
   snapDegrees: number = 15
 ): RotationGizmoConfig => {
-  // Get existing gizmo manager (should exist from position gizmo)
-  const gizmoManager = scene.gizmoManager;
-  if (!gizmoManager) {
-    throw new Error(
-      'GizmoManager not found. Position gizmo should be created first.'
-    );
-  }
+  // Create gizmo manager
+  const gizmoManager = new GizmoManager(scene);
 
   // Enable rotation gizmo
   gizmoManager.rotationGizmoEnabled = true;

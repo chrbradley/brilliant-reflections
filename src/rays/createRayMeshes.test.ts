@@ -43,9 +43,9 @@ describe('createRayMeshes', () => {
     const wallPlanes = createWallPlanes();
     const meshes = createRayMeshes(ray, 1, wallPlanes, 1, sceneConfig.scene);
 
-    expect(meshes[0].color.g).toBe(1); // Green color
+    expect((meshes[0] as any).color.g).toBe(1); // Green color
     expect(meshes[0].isPickable).toBe(false);
-    expect(meshes[0].alpha).toBeGreaterThan(0);
+    expect((meshes[0] as any).alpha).toBeGreaterThan(0);
 
     sceneConfig.dispose();
   });

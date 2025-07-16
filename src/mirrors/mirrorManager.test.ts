@@ -107,7 +107,7 @@ describe('mirrorManager', () => {
 
     it('should include disabled state in effect', () => {
       const state = { ...createMirrorState(), currentLevel: 0, enabled: false };
-      const mirrors = [];
+      const mirrors: any[] = [];
 
       const effect = applyMirrorState(state, mirrors);
 

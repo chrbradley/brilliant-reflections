@@ -66,10 +66,11 @@ export const linkMirrors = (
     return parent;
   }
 
-  // Add child to parent's render list
-  if (!parent.renderList.includes(child)) {
-    parent.renderList = [...parent.renderList, child];
-  }
+  // TODO: Fix this - cannot add MirrorTexture to renderList which expects AbstractMesh
+  // The linkMirrors function may need to be redesigned
+  // if (parent.renderList && !parent.renderList.includes(child)) {
+  //   parent.renderList = [...parent.renderList, child];
+  // }
 
   return parent;
 };

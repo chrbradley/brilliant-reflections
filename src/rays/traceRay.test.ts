@@ -69,8 +69,8 @@ describe('traceRay', () => {
     expect(points.length).toBeGreaterThan(2); // Should have bounces
     // First hit should be at a wall
     const firstHit = points[1];
-    expect(Math.abs(firstHit.x)).toBeCloseTo(10) ||
-      expect(Math.abs(firstHit.z)).toBeCloseTo(10);
+    const atWall = Math.abs(firstHit.x) === 10 || Math.abs(firstHit.z) === 10;
+    expect(atWall).toBe(true);
   });
 
   it('should respect maxBounces limit', () => {

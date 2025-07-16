@@ -38,12 +38,8 @@ export const createPositionGizmo = (
   gridSize: number = 1,
   limit: number = 8
 ): PositionGizmoConfig => {
-  // Create gizmo manager if not exists
-  let gizmoManager = scene.gizmoManager;
-  if (!gizmoManager) {
-    gizmoManager = new GizmoManager(scene);
-    scene.gizmoManager = gizmoManager;
-  }
+  // Create gizmo manager
+  const gizmoManager = new GizmoManager(scene);
 
   // Enable position gizmo
   gizmoManager.positionGizmoEnabled = true;

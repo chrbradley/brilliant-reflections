@@ -22,7 +22,7 @@ describe('createRotationGizmo', () => {
       undefined,
       utilityLayer
     );
-    sceneConfig.scene.gizmoManager = gizmoManager;
+    // Store gizmoManager reference
 
     const gizmoConfig = createRotationGizmo(sceneConfig.scene, mesh);
 
@@ -46,7 +46,7 @@ describe('createRotationGizmo', () => {
       undefined,
       utilityLayer
     );
-    sceneConfig.scene.gizmoManager = gizmoManager;
+    // Store gizmoManager reference
 
     const gizmoConfig = createRotationGizmo(sceneConfig.scene, mesh);
 
@@ -69,7 +69,7 @@ describe('createRotationGizmo', () => {
       undefined,
       utilityLayer
     );
-    sceneConfig.scene.gizmoManager = gizmoManager;
+    // Store gizmoManager reference
 
     const gizmoConfig = createRotationGizmo(sceneConfig.scene, mesh);
 
@@ -90,7 +90,7 @@ describe('createRotationGizmo', () => {
       undefined,
       utilityLayer
     );
-    sceneConfig.scene.gizmoManager = gizmoManager;
+    // Store gizmoManager reference
 
     const gizmoConfig = createRotationGizmo(sceneConfig.scene, mesh);
 
@@ -113,7 +113,7 @@ describe('createRotationGizmo', () => {
       undefined,
       utilityLayer
     );
-    sceneConfig.scene.gizmoManager = gizmoManager;
+    // Store gizmoManager reference
 
     const gizmoConfig = createRotationGizmo(sceneConfig.scene, mesh);
 
@@ -144,7 +144,7 @@ describe('createRotationGizmo', () => {
       undefined,
       utilityLayer
     );
-    sceneConfig.scene.gizmoManager = gizmoManager;
+    // Store gizmoManager reference
 
     const gizmoConfig = createRotationGizmo(sceneConfig.scene, mesh, 10);
 
@@ -184,7 +184,7 @@ describe('createRotationGizmo', () => {
       undefined,
       utilityLayer
     );
-    sceneConfig.scene.gizmoManager = gizmoManager;
+    // Store gizmoManager reference
 
     const gizmoConfig = createRotationGizmo(sceneConfig.scene, mesh);
 
